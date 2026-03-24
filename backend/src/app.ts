@@ -7,10 +7,9 @@ dotenv.config();
 import {client} from './common/mqtt/mqtt.client';
 const app = express();
 
-console.log('MQTT Client initialized:', client ? 'Success' : 'Failed to initialize MQTT client');
+// console.log('MQTT Client initialized:', client ? 'Success' : 'Failed to initialize MQTT client');
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
 
-eventBus.emit("event", { message: "Hello from the event bus!" });
 export default app;
