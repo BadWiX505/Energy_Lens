@@ -39,7 +39,7 @@ export default function AlertsPage() {
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h2 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                         <Bell className="w-5 h-5 text-violet-400" />
                         Alerts
                         {unreadCount > 0 && (
@@ -48,19 +48,19 @@ export default function AlertsPage() {
                             </span>
                         )}
                     </h2>
-                    <p className="text-xs text-zinc-400">{alerts.length} total alerts</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{alerts.length} total alerts</p>
                 </div>
 
                 <div className="flex items-center gap-2">
                     {/* Severity filter */}
-                    <div className="flex items-center bg-zinc-800/80 rounded-xl p-1 border border-white/5">
+                    <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 rounded-xl p-1 border border-black/5 dark:border-white/5">
                         {FILTERS.map(({ label, value }) => (
                             <button
                                 key={value}
                                 onClick={() => setFilter(value)}
                                 className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${filter === value
                                         ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
-                                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
+                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:text-zinc-200 hover:bg-black/5 dark:bg-white/5'
                                     }`}
                             >
                                 {label}
@@ -70,7 +70,7 @@ export default function AlertsPage() {
                     {unreadCount > 0 && (
                         <button
                             onClick={handleMarkAllRead}
-                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-800 border border-white/5 text-xs text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all"
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/5 text-xs text-zinc-700 dark:text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all"
                         >
                             <CheckCheck className="w-3.5 h-3.5" />
                             Mark all read
@@ -97,13 +97,13 @@ export default function AlertsPage() {
             {loading ? (
                 <div className="space-y-3">
                     {[1, 2, 3].map((i) => (
-                        <div key={i} className="h-20 rounded-xl bg-zinc-800/50 animate-pulse" />
+                        <div key={i} className="h-20 rounded-xl bg-zinc-200/50 dark:bg-zinc-800/50 animate-pulse" />
                     ))}
                 </div>
             ) : filtered.length === 0 ? (
                 <div className="text-center py-16">
                     <Bell className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-                    <p className="text-zinc-400 text-sm">No {filter !== 'all' ? filter : ''} alerts</p>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">No {filter !== 'all' ? filter : ''} alerts</p>
                 </div>
             ) : (
                 <div className="space-y-2">

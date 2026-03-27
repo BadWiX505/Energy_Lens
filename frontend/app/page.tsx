@@ -66,20 +66,20 @@ export default function DashboardPage() {
       {/* Header row */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h2 className="text-lg font-bold text-zinc-100">Energy Overview</h2>
-          <p className="text-xs text-zinc-400">Real-time monitoring · {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Energy Overview</h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">Real-time monitoring · {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
         <div className="flex items-center gap-3">
           <ConnectionStatus connected={connected} />
           {/* Mode tabs */}
-          <div className="flex items-center bg-zinc-800/80 rounded-xl p-1 border border-white/5">
+          <div className="flex items-center bg-zinc-100 dark:bg-zinc-800/80 rounded-xl p-1 border border-black/5 dark:border-white/5">
             {MODES.map(({ value, label }) => (
               <button
                 key={value}
                 onClick={() => handleModeChange(value)}
                 className={`px-3 py-1 rounded-lg text-xs font-medium transition-all duration-150 ${monitoringMode === value
                     ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
-                    : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/5'
+                    : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:text-zinc-200 hover:bg-black/5 dark:bg-white/5'
                   }`}
               >
                 {label}
@@ -138,7 +138,7 @@ export default function DashboardPage() {
           <ChartCard
             title="Power & Energy — Live"
             subtitle={`${history.length} data points`}
-            action={<span className="text-[10px] text-zinc-500">Updates every 2s</span>}
+            action={<span className="text-[10px] text-zinc-400 dark:text-zinc-500">Updates every 2s</span>}
           >
             <EnergyAreaChart
               data={liveChartData}
@@ -212,18 +212,18 @@ export default function DashboardPage() {
               <Calendar className="w-3.5 h-3.5 text-violet-400" />
             </div>
             <div>
-              <h4 className="text-xs font-semibold text-zinc-200">Monthly Bill Prediction</h4>
-              <p className="text-[10px] text-zinc-500">{billPrediction.daysLeft} days remaining this month</p>
+              <h4 className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">Monthly Bill Prediction</h4>
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500">{billPrediction.daysLeft} days remaining this month</p>
             </div>
           </div>
           <div className="flex items-end gap-6">
             <div>
-              <p className="text-[10px] text-zinc-500 mb-0.5">Projected</p>
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mb-0.5">Projected</p>
               <p className="text-3xl font-bold text-white">{formatCurrency(billPrediction.projected, settings.currency)}</p>
             </div>
             <div className="pb-1">
-              <p className="text-[10px] text-zinc-500 mb-0.5">Last Month</p>
-              <p className="text-lg font-semibold text-zinc-300">{formatCurrency(billPrediction.lastMonth, settings.currency)}</p>
+              <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mb-0.5">Last Month</p>
+              <p className="text-lg font-semibold text-zinc-700 dark:text-zinc-300">{formatCurrency(billPrediction.lastMonth, settings.currency)}</p>
               <p className={`text-[10px] font-medium ${billPrediction.projected > billPrediction.lastMonth ? 'text-rose-400' : 'text-emerald-400'
                 }`}>
                 {billPrediction.projected > billPrediction.lastMonth ? '↑' : '↓'}{' '}
@@ -231,10 +231,10 @@ export default function DashboardPage() {
               </p>
             </div>
           </div>
-          <div className="mt-3 pt-3 border-t border-white/5">
-            <p className="text-[11px] text-zinc-400">
-              Avg daily usage: <span className="text-zinc-200 font-semibold">{billPrediction.avgDaily} kWh</span> ·{' '}
-              At <span className="text-zinc-200 font-semibold">{settings.price_per_kwh} {settings.currency}/kWh</span>
+          <div className="mt-3 pt-3 border-t border-black/5 dark:border-white/5">
+            <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
+              Avg daily usage: <span className="text-zinc-800 dark:text-zinc-200 font-semibold">{billPrediction.avgDaily} kWh</span> ·{' '}
+              At <span className="text-zinc-800 dark:text-zinc-200 font-semibold">{settings.price_per_kwh} {settings.currency}/kWh</span>
             </p>
           </div>
         </div>
@@ -244,8 +244,8 @@ export default function DashboardPage() {
           { label: 'Today\'s Usage', value: `${(billPrediction.avgDaily * 0.4).toFixed(1)} kWh`, icon: 'Zap', color: 'text-violet-400' },
           { label: 'Peak Power Today', value: '2,847 W', icon: 'TrendingUp', color: 'text-rose-400' },
         ].map((stat, i) => (
-          <div key={i} className="rounded-2xl border border-white/5 bg-zinc-900/80 p-5 flex flex-col justify-between">
-            <p className="text-[11px] uppercase tracking-wider text-zinc-500">{stat.label}</p>
+          <div key={i} className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-900/80 p-5 flex flex-col justify-between">
+            <p className="text-[11px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{stat.label}</p>
             <p className={`text-2xl font-bold ${stat.color} mt-2`}>{stat.value}</p>
           </div>
         ))}

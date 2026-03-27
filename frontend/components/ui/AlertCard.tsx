@@ -44,9 +44,9 @@ export function AlertCard({ alert, onRead, className }: AlertCardProps) {
                     <div className="min-w-0">
                         <div className="flex items-center gap-2">
                             {!alert.read && <span className={cn('flex-shrink-0 w-1.5 h-1.5 rounded-full', c.dot)} />}
-                            <p className="text-sm font-semibold text-zinc-100 truncate">{alert.title}</p>
+                            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 truncate">{alert.title}</p>
                         </div>
-                        <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">{alert.message}</p>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5 leading-relaxed">{alert.message}</p>
                         {alert.value != null && (
                             <p className={cn('text-xs font-bold mt-1', c.text)}>
                                 {alert.value} {alert.unit}
@@ -54,7 +54,7 @@ export function AlertCard({ alert, onRead, className }: AlertCardProps) {
                         )}
                     </div>
                     <div className="flex-shrink-0 flex flex-col items-end gap-2">
-                        <span className="text-[10px] text-zinc-500 whitespace-nowrap">{timeAgo(alert.timestamp)}</span>
+                        <span className="text-[10px] text-zinc-400 dark:text-zinc-500 whitespace-nowrap">{timeAgo(alert.timestamp)}</span>
                         <span className={cn(
                             'text-[10px] font-semibold px-1.5 py-0.5 rounded-full capitalize',
                             c.bg, c.text, 'border', c.border
@@ -66,7 +66,7 @@ export function AlertCard({ alert, onRead, className }: AlertCardProps) {
                 {!alert.read && onRead && (
                     <button
                         onClick={() => onRead(alert.id)}
-                        className="mt-2 text-[10px] text-zinc-400 hover:text-zinc-200 transition-colors underline underline-offset-2"
+                        className="mt-2 text-[10px] text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:text-zinc-200 transition-colors underline underline-offset-2"
                     >
                         Mark as read
                     </button>

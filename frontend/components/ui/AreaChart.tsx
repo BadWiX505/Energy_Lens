@@ -24,12 +24,12 @@ interface EnergyAreaChartProps {
 const CustomTooltip = ({ active, payload, label }: any) => {
     if (!active || !payload?.length) return null;
     return (
-        <div className="bg-zinc-900 border border-white/10 rounded-xl shadow-xl px-3 py-2 text-xs">
-            <p className="text-zinc-400 mb-1.5">{label}</p>
+        <div className="bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl shadow-xl px-3 py-2 text-xs">
+            <p className="text-zinc-500 dark:text-zinc-400 mb-1.5">{label}</p>
             {payload.map((p: any) => (
                 <div key={p.dataKey} className="flex items-center gap-2">
                     <span className="w-2 h-2 rounded-full" style={{ background: p.color }} />
-                    <span className="text-zinc-300 font-medium">{p.name || p.dataKey}</span>
+                    <span className="text-zinc-700 dark:text-zinc-300 font-medium">{p.name || p.dataKey}</span>
                     <span className="text-white font-bold ml-auto pl-3">{typeof p.value === 'number' ? p.value.toFixed(2) : p.value}</span>
                 </div>
             ))}

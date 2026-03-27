@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from 'next-themes';
 import { RootLayout } from '@/components/layout/RootLayout';
 import { SocketProvider } from '@/components/providers/SocketProvider';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -16,11 +17,13 @@ export const metadata: Metadata = {
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={inter.variable}>
-      <body className="font-sans bg-zinc-950 text-zinc-100 antialiased">
+      <body className="font-sans bg-zinc-50 dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 antialiased">
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
-          <SocketProvider>
-            <RootLayout>{children}</RootLayout>
-          </SocketProvider>
+          <AuthProvider>
+            <SocketProvider>
+              <RootLayout>{children}</RootLayout>
+            </SocketProvider>
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

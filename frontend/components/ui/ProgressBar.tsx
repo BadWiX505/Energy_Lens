@@ -52,29 +52,29 @@ export function ProgressBar({
     showValue = true,
 }: ProgressBarProps) {
     const pct = calcProgress(value, max);
-    const resolvedColor = color ?? (getAutoColor(pct, lowerIsBetter) as typeof color);
-    const c = colorMap[resolvedColor!];
+    const resolvedColor = color ?? (getAutoColor(pct, lowerIsBetter) as keyof typeof colorMap);
+    const c = colorMap[resolvedColor];
 
     return (
         <div className={cn('w-full', className)}>
             {(showLabel || showValue) && (
                 <div className="flex items-center justify-between mb-1.5">
-                    {label && <span className="text-xs text-zinc-400">{label}</span>}
+                    {label && <span className="text-xs text-zinc-500 dark:text-zinc-400">{label}</span>}
                     {showValue && (
-                        <span className="text-xs font-semibold text-zinc-200 tabular-nums">
+                        <span className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 tabular-nums">
                             {value.toLocaleString()} / {max.toLocaleString()}
                         </span>
                     )}
                 </div>
             )}
-            <div className={cn('w-full bg-zinc-800 rounded-full overflow-hidden', sizeMap[size])}>
+            <div className={cn('w-full bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden', sizeMap[size])}>
                 <div
                     className={cn('h-full rounded-full shadow-sm transition-all duration-700 ease-out', c.bar, c.shadow)}
                     style={{ width: `${pct}%` }}
                 />
             </div>
             <div className="mt-1 text-right">
-                <span className="text-[10px] text-zinc-500">{pct.toFixed(0)}%</span>
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500">{pct.toFixed(0)}%</span>
             </div>
         </div>
     );

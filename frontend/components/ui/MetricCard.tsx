@@ -37,7 +37,7 @@ export function MetricCard({
     className,
 }: MetricCardProps) {
     const c = colorMap[color];
-    const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[icon] || LucideIcons.Activity;
+    const IconComponent = (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[icon] || LucideIcons.Activity;
 
     return (
         <div
@@ -54,18 +54,18 @@ export function MetricCard({
 
             <div className="relative z-10 flex items-start justify-between">
                 <div className="flex-1 min-w-0">
-                    <p className="text-xs font-medium text-zinc-400 dark:text-zinc-400 mb-2 uppercase tracking-wider">{title}</p>
+                    <p className="text-xs font-medium text-zinc-500 dark:text-zinc-500 dark:text-zinc-400 mb-2 uppercase tracking-wider">{title}</p>
                     {loading ? (
-                        <div className="h-7 w-24 rounded-lg bg-zinc-800 animate-pulse" />
+                        <div className="h-7 w-24 rounded-lg bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
                     ) : (
                         <div className="flex items-baseline gap-1.5">
-                            <span className="text-2xl font-bold text-zinc-100 dark:text-zinc-50 tabular-nums">
+                            <span className="text-2xl font-bold text-zinc-900 dark:text-zinc-50 tabular-nums">
                                 {typeof value === 'number' ? value.toLocaleString() : value}
                             </span>
                             <span className={cn('text-xs font-semibold', c.text)}>{unit}</span>
                         </div>
                     )}
-                    {subtitle && <p className="text-[11px] text-zinc-500 mt-1">{subtitle}</p>}
+                    {subtitle && <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1">{subtitle}</p>}
                     {typeof change === 'number' && (
                         <div className={cn(
                             'inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold',
@@ -73,7 +73,7 @@ export function MetricCard({
                                 ? 'bg-rose-500/10 text-rose-400'
                                 : change < 0
                                     ? 'bg-emerald-500/10 text-emerald-400'
-                                    : 'bg-zinc-500/10 text-zinc-400'
+                                    : 'bg-zinc-500/10 text-zinc-500 dark:text-zinc-400'
                         )}>
                             {change > 0 ? <TrendingUp className="w-3 h-3" /> : change < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
                             {Math.abs(change)}% vs avg

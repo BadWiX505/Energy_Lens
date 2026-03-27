@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 function getThresholdColor(value: number, low: number, high: number): string {
     if (value >= high) return 'border-red-500/50 focus:ring-red-500 bg-red-500/5';
     if (value >= low) return 'border-amber-500/50 focus:ring-amber-500 bg-amber-500/5';
-    return 'border-white/10 focus:ring-violet-500';
+    return 'border-black/10 dark:border-white/10 focus:ring-violet-500';
 }
 
 function ThresholdHint({ value, low, high, unit }: { value: number; low: number; high: number; unit: string }) {
@@ -30,7 +30,7 @@ function ThresholdHint({ value, low, high, unit }: { value: number; low: number;
         </p>
     );
     return (
-        <p className="text-[10px] text-zinc-500 mt-1 flex items-center gap-1">
+        <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
             <Info className="w-3 h-3" /> Conservative threshold — good for energy saving
         </p>
     );
@@ -91,11 +91,11 @@ export default function SettingsPage() {
         <div className="space-y-6 pb-8 max-w-3xl">
             {/* Header */}
             <div>
-                <h2 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
+                <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                     <Settings className="w-5 h-5 text-violet-400" />
                     Settings
                 </h2>
-                <p className="text-xs text-zinc-400">Preferences, thresholds, and profile configuration</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">Preferences, thresholds, and profile configuration</p>
             </div>
 
             <form onSubmit={handleSave} className="space-y-5">
@@ -112,7 +112,7 @@ export default function SettingsPage() {
                                 value={form.max_power_threshold}
                                 {...field('max_power_threshold')}
                                 className={cn(
-                                    'w-full rounded-xl px-3 py-2 text-sm text-zinc-100 bg-zinc-800 border focus:outline-none focus:ring-1 transition-colors',
+                                    'w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border focus:outline-none focus:ring-1 transition-colors',
                                     getThresholdColor(form.max_power_threshold, 2000, 3500)
                                 )}
                             />
@@ -128,7 +128,7 @@ export default function SettingsPage() {
                                 value={form.night_threshold}
                                 {...field('night_threshold')}
                                 className={cn(
-                                    'w-full rounded-xl px-3 py-2 text-sm text-zinc-100 bg-zinc-800 border focus:outline-none focus:ring-1 transition-colors',
+                                    'w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border focus:outline-none focus:ring-1 transition-colors',
                                     getThresholdColor(form.night_threshold, 300, 800)
                                 )}
                             />
@@ -146,7 +146,7 @@ export default function SettingsPage() {
                                 min={0}
                                 value={form.price_per_kwh}
                                 {...field('price_per_kwh')}
-                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-100 bg-zinc-800 border border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
                             />
                         </FormField>
                         <FormField label="Currency">
@@ -155,7 +155,7 @@ export default function SettingsPage() {
                                 maxLength={5}
                                 value={form.currency}
                                 {...field('currency')}
-                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-100 bg-zinc-800 border border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
                                 placeholder="USD"
                             />
                         </FormField>
@@ -166,7 +166,7 @@ export default function SettingsPage() {
                                 max={31}
                                 value={form.billing_start}
                                 {...field('billing_start')}
-                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-100 bg-zinc-800 border border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
                             />
                         </FormField>
                     </div>
@@ -174,10 +174,10 @@ export default function SettingsPage() {
 
                 {/* Notifications */}
                 <Section title="Notifications" description="Control alert and notification behaviour">
-                    <label className="flex items-center justify-between p-3 rounded-xl bg-zinc-800/50 border border-white/5 cursor-pointer hover:bg-zinc-800 transition-colors">
+                    <label className="flex items-center justify-between p-3 rounded-xl bg-zinc-200/50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 cursor-pointer hover:bg-zinc-100 dark:bg-zinc-800 transition-colors">
                         <div>
-                            <p className="text-sm text-zinc-100">Enable Notifications</p>
-                            <p className="text-[11px] text-zinc-500">Real-time alerts and anomaly warnings</p>
+                            <p className="text-sm text-zinc-900 dark:text-zinc-100">Enable Notifications</p>
+                            <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Real-time alerts and anomaly warnings</p>
                         </div>
                         <div
                             onClick={() => setForm((f) => ({ ...f, enable_notifications: !f.enable_notifications }))}
@@ -203,7 +203,7 @@ export default function SettingsPage() {
                                 type="text"
                                 readOnly
                                 value={new Date(form.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
-                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-400 bg-zinc-800/50 border border-white/5 cursor-not-allowed"
+                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-200/50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 cursor-not-allowed"
                             />
                         </FormField>
                     </div>
@@ -237,7 +237,7 @@ export default function SettingsPage() {
                                 'flex flex-col items-center gap-2 p-4 rounded-xl border transition-all',
                                 theme === value
                                     ? 'border-violet-500/50 bg-violet-500/10 text-violet-300'
-                                    : 'border-white/5 bg-zinc-800/50 text-zinc-400 hover:border-white/10 hover:text-zinc-200'
+                                    : 'border-black/5 dark:border-white/5 bg-zinc-200/50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 hover:border-black/10 dark:border-white/10 hover:text-zinc-800 dark:text-zinc-200'
                             )}
                         >
                             <Icon className="w-5 h-5" />
@@ -258,8 +258,8 @@ export default function SettingsPage() {
                             className={cn(
                                 'flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all',
                                 home.id === selectedHomeId
-                                    ? 'border-violet-500/30 bg-violet-500/5 text-zinc-100'
-                                    : 'border-white/5 bg-zinc-800/50 text-zinc-400 hover:border-white/10 hover:text-zinc-200'
+                                    ? 'border-violet-500/30 bg-violet-500/5 text-zinc-900 dark:text-zinc-100'
+                                    : 'border-black/5 dark:border-white/5 bg-zinc-200/50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 hover:border-black/10 dark:border-white/10 hover:text-zinc-800 dark:text-zinc-200'
                             )}
                         >
                             <HomeIcon className="w-4 h-4 flex-shrink-0" />
@@ -277,23 +277,23 @@ export default function SettingsPage() {
                                 value={newHomeName}
                                 onChange={(e) => setNewHomeName(e.target.value)}
                                 placeholder="Home name"
-                                className="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
                             />
                             <input
                                 value={newHomeLocation}
                                 onChange={(e) => setNewHomeLocation(e.target.value)}
                                 placeholder="Location (city, country)"
-                                className="w-full bg-zinc-800 border border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
                             />
                             <div className="flex gap-2">
-                                <button onClick={() => setShowAddHome(false)} className="flex-1 py-1.5 rounded-lg text-xs text-zinc-400 hover:text-zinc-200 border border-white/10 transition-colors">Cancel</button>
+                                <button onClick={() => setShowAddHome(false)} className="flex-1 py-1.5 rounded-lg text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:text-zinc-200 border border-black/10 dark:border-white/10 transition-colors">Cancel</button>
                                 <button onClick={handleAddHome} className="flex-1 py-1.5 rounded-lg text-xs text-white bg-violet-600 hover:bg-violet-500 transition-colors font-semibold">Add</button>
                             </div>
                         </div>
                     ) : (
                         <button
                             onClick={() => setShowAddHome(true)}
-                            className="flex items-center gap-2 w-full p-3 rounded-xl border border-dashed border-white/10 text-zinc-500 hover:text-zinc-300 hover:border-white/20 transition-all text-xs"
+                            className="flex items-center gap-2 w-full p-3 rounded-xl border border-dashed border-black/10 dark:border-white/10 text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:text-zinc-300 hover:border-white/20 transition-all text-xs"
                         >
                             <Plus className="w-4 h-4" /> Add Home
                         </button>
@@ -308,10 +308,10 @@ export default function SettingsPage() {
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
     return (
-        <div className="rounded-2xl border border-white/5 bg-zinc-900/70 overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-white/5 bg-zinc-900/50">
-                <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
-                {description && <p className="text-[11px] text-zinc-500 mt-0.5">{description}</p>}
+        <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-900/70 overflow-hidden">
+            <div className="px-5 py-3.5 border-b border-black/5 dark:border-white/5 bg-zinc-100/50 dark:bg-zinc-900/50">
+                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
+                {description && <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">{description}</p>}
             </div>
             <div className="p-5">{children}</div>
         </div>
@@ -321,7 +321,7 @@ function Section({ title, description, children }: { title: string; description?
 function FormField({ label, children, hint }: { label: string; children: React.ReactNode; hint?: React.ReactNode }) {
     return (
         <div>
-            <label className="text-[11px] text-zinc-400 mb-1 block">{label}</label>
+            <label className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-1 block">{label}</label>
             {children}
             {hint}
         </div>

@@ -5,7 +5,7 @@ export const mqttMessageHandler = (receivedTopic: string, payload: Buffer) => {
    if (receivedTopic === 'home/energy/data') {
     try {
       const data = JSON.parse(payload.toString());
-      if (!writePoint('power_metrics_v1', data.tags, data.metrics)) {
+      if (!writePoint('power_metrics_v2', data.tags, data.metrics)) {
         console.error('Failed to write data to InfluxDB');
       }
       else {

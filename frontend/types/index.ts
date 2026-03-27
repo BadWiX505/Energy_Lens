@@ -4,6 +4,18 @@
 
 export type MonitoringMode = 'live' | 'hours' | 'days' | 'weeks' | 'months';
 
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+}
+
+export interface Device {
+  id: string;
+  name: string;
+  code: string;
+}
+
 export interface EnergyMetrics {
   power: number;        // Watts (W)
   voltage: number;      // Volts (V)
@@ -86,6 +98,7 @@ export interface Home {
   name: string;
   location: string;
   timezone: string;
+  devices?: Device[];
 }
 
 export interface ComparisonData {

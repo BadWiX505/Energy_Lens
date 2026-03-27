@@ -1,5 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// Prisma schema - Home-centric architecture
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -9,26 +9,24 @@ datasource db {
   provider = "postgresql"
 }
 
+// =====================
+// USER (ONLY OWNS HOMES)
+// =====================
 model User {
-  id               String            @id @default(uuid()) @db.Uuid
-  name             String
-  email            String            @unique
-  passwordHash     String            @map("password_hash")
-  lastGivenTips    DateTime?         @map("last_given_tips") @db.Date
-  createdAt        DateTime          @default(now()) @map("created_at")
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now()) @map("created_at")
 
-  // Relations
-  homes            Home[]
-  preferences      Preference[]
-  alerts           Alert[]
-  energyGoals      EnergyGoal[]
-  userAchievements UserAchievement[]
-  energyScores     EnergyScore[]
-  tips             Tip[]
+  homes        Home[]
 
   @@map("users")
 }
 
+// =====================
+// HOME (CORE ENTITY)
+// =====================
 model Home {
   id        String   @id @default(uuid()) @db.Uuid
   userId    String   @map("user_id") @db.Uuid
@@ -36,12 +34,21 @@ model Home {
   location  String?
   createdAt DateTime @default(now()) @map("created_at")
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  devices   Device[]
+  user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  devices        Device[]
+  preferences    Preference[]
+  alerts         Alert[]
+  energyGoals    EnergyGoal[]
+  energyScores   EnergyScore[]
+  tips           Tip[]
+  achievements   UserAchievement[]
 
   @@map("homes")
 }
 
+// =====================
+// DEVICES
+// =====================
 model Device {
   id                 String              @id @default(uuid()) @db.Uuid
   homeId             String              @map("home_id") @db.Uuid
@@ -53,79 +60,6 @@ model Device {
   detectedAppliances DetectedAppliance[]
 
   @@map("devices")
-}
-
-model Preference {
-  id                  String    @id @default(uuid()) @db.Uuid
-  userId              String    @map("user_id") @db.Uuid
-  maxPowerThreshold   Float?    @map("max_power_threshold")
-  nightThreshold      Float?    @map("night_threshold")
-  pricePerKwh         Float?    @map("price_per_kwh")
-  currency            String?
-  billingStart        Int?      @map("billing_start")
-  enableNotifications Boolean?  @default(true) @map("enable_notifications")
-  createdAt           DateTime? @map("created_at") @db.Date
-
-  user                User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("preferences")
-}
-
-model Alert {
-  id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  type      String?
-  message   String?
-  isRead    Boolean? @default(false) @map("is_read")
-  createdAt DateTime @default(now()) @map("created_at")
-
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("alerts")
-}
-
-model EnergyGoal {
-  id            String   @id @default(uuid()) @db.Uuid
-  userId        String   @map("user_id") @db.Uuid
-  dailyLimitKwh Float?   @map("daily_limit_kwh")
-  createdAt     DateTime @default(now()) @map("created_at")
-
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("energy_goals")
-}
-
-model Achievement {
-  id               String            @id @default(uuid()) @db.Uuid
-  name             String?
-  description      String?
-
-  userAchievements UserAchievement[]
-
-  @@map("achievements")
-}
-
-model UserAchievement {
-  id            String      @id @default(uuid()) @db.Uuid
-  userId        String      @map("user_id") @db.Uuid
-  achievementId String      @map("achievement_id") @db.Uuid
-  earnedAt      DateTime    @default(now()) @map("earned_at")
-
-  user          User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
-
-  @@map("user_achievements")
-}
-
-model EnergyScore {
-  id      String    @id @default(uuid()) @db.Uuid
-  userId  String    @map("user_id") @db.Uuid
-  score   Int?
-  date    DateTime? @db.Date
-
-  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("energy_scores")
 }
 
 model DetectedAppliance {
@@ -140,13 +74,105 @@ model DetectedAppliance {
   @@map("detected_appliances")
 }
 
+// =====================
+// PREFERENCES (PER HOME)
+// =====================
+model Preference {
+  id                  String   @id @default(uuid()) @db.Uuid
+  homeId              String   @unique @map("home_id") @db.Uuid
+  maxPowerThreshold   Float?   @map("max_power_threshold")
+  nightThreshold      Float?
+  pricePerKwh         Float?   @map("price_per_kwh")
+  currency            String?
+  billingStart        Int?     @map("billing_start")
+  enableNotifications Boolean? @default(true) @map("enable_notifications")
+  createdAt           DateTime? @map("created_at") @db.Date
+
+  home                Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
+
+  @@map("preferences")
+}
+
+// =====================
+// ALERTS (PER HOME)
+// =====================
+model Alert {
+  id        String   @id @default(uuid()) @db.Uuid
+  homeId    String   @map("home_id") @db.Uuid
+  type      String?
+  message   String?
+  isRead    Boolean? @default(false) @map("is_read")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  home      Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
+
+  @@map("alerts")
+}
+
+// =====================
+// ENERGY GOALS
+// =====================
+model EnergyGoal {
+  id            String   @id @default(uuid()) @db.Uuid
+  homeId        String   @map("home_id") @db.Uuid
+  dailyLimitKwh Float?   @map("daily_limit_kwh")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  home          Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
+
+  @@map("energy_goals")
+}
+
+// =====================
+// ENERGY SCORES
+// =====================
+model EnergyScore {
+  id      String    @id @default(uuid()) @db.Uuid
+  homeId  String    @map("home_id") @db.Uuid
+  score   Int?
+  date    DateTime? @db.Date
+
+  home    Home      @relation(fields: [homeId], references: [id], onDelete: Cascade)
+
+  @@unique([homeId, date])
+  @@map("energy_scores")
+}
+
+// =====================
+// ACHIEVEMENTS
+// =====================
+model Achievement {
+  id               String            @id @default(uuid()) @db.Uuid
+  name             String?
+  description      String?
+
+  userAchievements UserAchievement[]
+
+  @@map("achievements")
+}
+
+model UserAchievement {
+  id            String      @id @default(uuid()) @db.Uuid
+  homeId        String      @map("home_id") @db.Uuid
+  achievementId String      @map("achievement_id") @db.Uuid
+  earnedAt      DateTime    @default(now()) @map("earned_at")
+
+  home          Home        @relation(fields: [homeId], references: [id], onDelete: Cascade)
+  achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@map("user_achievements")
+}
+
+// =====================
+// TIPS
+// =====================
 model Tip {
   id        String   @id @default(uuid()) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
+  homeId    String   @map("home_id") @db.Uuid
   message   String?
   createdAt DateTime @default(now()) @map("created_at")
 
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  home      Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
 
   @@map("tips")
 }

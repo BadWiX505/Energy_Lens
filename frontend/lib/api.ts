@@ -11,8 +11,9 @@
 //   3. Adjust endpoint paths in each function below if needed
 // ============================================================
 
-import type { EnergyMetrics, EnergyHistoryPoint, Alert, Appliance, Goal, UserSettings } from '@/types';
+import type { EnergyMetrics, EnergyHistoryPoint, Alert, Appliance, Goal, UserSettings, User } from '@/types';
 import type { MonitoringMode } from '@/types';
+import { useAuthStore } from '@/store/authStore';
 import {
     generateLiveMetrics,
     generateHourlyHistory,
@@ -25,26 +26,64 @@ import {
     DEFAULT_SETTINGS,
 } from '@/lib/mockData';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE = 'http://localhost:3001';
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
 
 // ── Internal fetch wrapper ───────────────────────────────────
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
+    const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+    };
+
+    // Note: useAuthStore.getState() might only work properly on the client side.
+    if (typeof window !== 'undefined') {
+        const token = useAuthStore.getState().token;
+        if (token) {
+            headers['Authorization'] = `Bearer ${token}`;
+        }
+    }
+
     const response = await fetch(`${API_BASE}${path}`, {
         headers: {
-            'Content-Type': 'application/json',
-            // Add your auth headers here, e.g.:
-            // 'Authorization': `Bearer ${token}`,
+            ...headers,
+            ...options?.headers,
         },
         ...options,
     });
 
     if (!response.ok) {
-        throw new Error(`API error ${response.status}: ${response.statusText}`);
+        let errMessage = `API error ${response.status}`;
+        try {
+            const errBody = await response.json();
+            if (errBody.message) errMessage = errBody.message;
+        } catch {
+            // ignore JSON parse error
+        }
+        throw new Error(errMessage);
     }
 
     return response.json() as Promise<T>;
+}
+
+// ── Auth Endpoints ───────────────────────────────────────────
+
+export async function loginApi(email: string, password: string): Promise<{ token: string; user: User; message: string }> {
+    return apiFetch<{ token: string; user: User; message: string }>('/api/auth/login', {
+        method: 'POST',
+        body: JSON.stringify({ email, password }),
+    });
+}
+
+export async function registerApi(name: string, email: string, password: string): Promise<{ user: User; message: string }> {
+    return apiFetch<{ user: User; message: string }>('/api/auth/signup', {
+        method: 'POST',
+        body: JSON.stringify({ name, email, password }),
+    });
+}
+
+export async function validateMeApi(): Promise<{ user: User }> {
+    return apiFetch<{ user: User }>('/api/auth/me');
 }
 
 // ── Energy Endpoints ─────────────────────────────────────────

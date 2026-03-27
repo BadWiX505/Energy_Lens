@@ -32,11 +32,11 @@ function EfficiencyGauge({ score }: { score: number }) {
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-3xl font-black" style={{ color }}>{score}</span>
-                    <span className="text-[10px] text-zinc-400">/ 100</span>
+                    <span className="text-[10px] text-zinc-500 dark:text-zinc-400">/ 100</span>
                 </div>
             </div>
             <p className="text-sm font-semibold mt-2" style={{ color }}>{label}</p>
-            <p className="text-[11px] text-zinc-500 mt-1">Energy Efficiency Score</p>
+            <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1">Energy Efficiency Score</p>
         </div>
     );
 }
@@ -76,28 +76,28 @@ function AddGoalModal({ onClose, onAdd }: AddGoalModalProps) {
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-            <div className="relative z-10 w-full max-w-md bg-zinc-900 rounded-2xl border border-white/10 shadow-2xl p-6">
+            <div className="relative z-10 w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-black/10 dark:border-white/10 shadow-2xl p-6">
                 <div className="flex items-center justify-between mb-5">
                     <h3 className="text-sm font-semibold text-white">Add New Goal</h3>
-                    <button onClick={onClose} className="text-zinc-400 hover:text-white"><X className="w-4 h-4" /></button>
+                    <button onClick={onClose} className="text-zinc-500 dark:text-zinc-400 hover:text-white"><X className="w-4 h-4" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="text-[11px] text-zinc-400 mb-1 block">Label</label>
+                        <label className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-1 block">Label</label>
                         <input
                             value={form.label}
                             onChange={(e) => setForm((f) => ({ ...f, label: e.target.value }))}
                             placeholder="e.g. Keep daily usage under 12kWh"
-                            className="w-full bg-zinc-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                            className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-violet-500"
                         />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-[11px] text-zinc-400 mb-1 block">Metric</label>
+                            <label className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-1 block">Metric</label>
                             <select
                                 value={form.metric}
                                 onChange={(e) => handleMetricChange(e.target.value as GoalMetric)}
-                                className="w-full bg-zinc-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
                             >
                                 <option value="energy">Energy (kWh)</option>
                                 <option value="cost">Cost (currency)</option>
@@ -105,11 +105,11 @@ function AddGoalModal({ onClose, onAdd }: AddGoalModalProps) {
                             </select>
                         </div>
                         <div>
-                            <label className="text-[11px] text-zinc-400 mb-1 block">Period</label>
+                            <label className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-1 block">Period</label>
                             <select
                                 value={form.period}
                                 onChange={(e) => setForm((f) => ({ ...f, period: e.target.value as GoalPeriod }))}
-                                className="w-full bg-zinc-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
                             >
                                 <option value="daily">Daily</option>
                                 <option value="weekly">Weekly</option>
@@ -118,18 +118,18 @@ function AddGoalModal({ onClose, onAdd }: AddGoalModalProps) {
                         </div>
                     </div>
                     <div>
-                        <label className="text-[11px] text-zinc-400 mb-1 block">Target ({form.unit})</label>
+                        <label className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-1 block">Target ({form.unit})</label>
                         <input
                             type="number"
                             min={1}
                             required
                             value={form.target}
                             onChange={(e) => setForm((f) => ({ ...f, target: e.target.value }))}
-                            className="w-full bg-zinc-800 border border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                            className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
                         />
                     </div>
                     <div className="flex gap-2 pt-1">
-                        <button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl border border-white/10 text-xs text-zinc-400 hover:text-zinc-200 transition-colors">
+                        <button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl border border-black/10 dark:border-white/10 text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:text-zinc-200 transition-colors">
                             Cancel
                         </button>
                         <button type="submit" className="flex-1 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs text-white font-semibold transition-colors shadow-lg shadow-violet-500/20">
@@ -160,11 +160,11 @@ export default function GoalsPage() {
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h2 className="text-lg font-bold text-zinc-100 flex items-center gap-2">
+                    <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                         <Target className="w-5 h-5 text-violet-400" />
                         Goals & Gamification
                     </h2>
-                    <p className="text-xs text-zinc-400">Track your progress and earn achievements</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Track your progress and earn achievements</p>
                 </div>
                 <button
                     onClick={() => setShowAddModal(true)}
@@ -178,11 +178,11 @@ export default function GoalsPage() {
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 {/* Goals */}
                 <div className="xl:col-span-2 space-y-3">
-                    <h3 className="text-xs uppercase tracking-wider text-zinc-500 font-semibold">Active Goals</h3>
+                    <h3 className="text-xs uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-semibold">Active Goals</h3>
                     {goals.length === 0 ? (
-                        <div className="rounded-2xl border border-white/5 bg-zinc-900/80 p-8 text-center">
+                        <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-900/80 p-8 text-center">
                             <Target className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-                            <p className="text-sm text-zinc-400">No goals yet. Add your first goal!</p>
+                            <p className="text-sm text-zinc-500 dark:text-zinc-400">No goals yet. Add your first goal!</p>
                         </div>
                     ) : (
                         goals.map((goal) => {
@@ -191,20 +191,20 @@ export default function GoalsPage() {
                             return (
                                 <div key={goal.id} className={cn(
                                     'rounded-2xl border p-4 transition-all',
-                                    done ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-white/5 bg-zinc-900/80'
+                                    done ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-black/5 dark:border-white/5 bg-zinc-900/80'
                                 )}>
                                     <div className="flex items-start justify-between mb-3">
                                         <div>
                                             <div className="flex items-center gap-2">
                                                 {done && <Star className="w-3.5 h-3.5 text-emerald-400" />}
-                                                <p className="text-sm font-semibold text-zinc-100">{goal.label}</p>
+                                                <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{goal.label}</p>
                                             </div>
-                                            <p className="text-[11px] text-zinc-500 capitalize">{goal.period} · {goal.metric}</p>
+                                            <p className="text-[11px] text-zinc-400 dark:text-zinc-500 capitalize">{goal.period} · {goal.metric}</p>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             <span className={cn(
                                                 'text-[10px] font-bold px-2 py-0.5 rounded-full capitalize',
-                                                done ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-800 text-zinc-400'
+                                                done ? 'bg-emerald-500/20 text-emerald-400' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500 dark:text-zinc-400'
                                             )}>
                                                 {done ? '✓ Done' : goal.period}
                                             </span>
@@ -228,7 +228,7 @@ export default function GoalsPage() {
                     )}
 
                     {/* Achievements */}
-                    <h3 className="text-xs uppercase tracking-wider text-zinc-500 font-semibold pt-2">Achievements</h3>
+                    <h3 className="text-xs uppercase tracking-wider text-zinc-400 dark:text-zinc-500 font-semibold pt-2">Achievements</h3>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                         {achievements.map((ach) => {
                             const Icon = (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[ach.icon] || Trophy;
@@ -237,27 +237,27 @@ export default function GoalsPage() {
                                     'rounded-2xl border p-4 text-center transition-all',
                                     ach.unlocked
                                         ? 'border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5'
-                                        : 'border-white/5 bg-zinc-900/50 opacity-60'
+                                        : 'border-black/5 dark:border-white/5 bg-zinc-100/50 dark:bg-zinc-900/50 opacity-60'
                                 )}>
                                     <div className={cn(
                                         'w-12 h-12 rounded-2xl mx-auto mb-2 flex items-center justify-center',
-                                        ach.unlocked ? 'bg-amber-500/20' : 'bg-zinc-800'
+                                        ach.unlocked ? 'bg-amber-500/20' : 'bg-zinc-100 dark:bg-zinc-800'
                                     )}>
                                         {ach.unlocked
                                             ? <Icon className="w-6 h-6 text-amber-400" />
                                             : <Lock className="w-5 h-5 text-zinc-600" />
                                         }
                                     </div>
-                                    <p className="text-xs font-semibold text-zinc-200">{ach.name}</p>
-                                    <p className="text-[10px] text-zinc-500 mt-0.5 leading-snug">{ach.description}</p>
+                                    <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">{ach.name}</p>
+                                    <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 leading-snug">{ach.description}</p>
                                     <div className={cn(
                                         'mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block',
-                                        ach.unlocked ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-800 text-zinc-500'
+                                        ach.unlocked ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500'
                                     )}>
                                         +{ach.xp} XP
                                     </div>
                                     {!ach.unlocked && ach.progress != null && (
-                                        <div className="mt-2 h-1 bg-zinc-800 rounded-full overflow-hidden">
+                                        <div className="mt-2 h-1 bg-zinc-100 dark:bg-zinc-800 rounded-full overflow-hidden">
                                             <div className="h-full bg-violet-500 rounded-full" style={{ width: `${ach.progress}%` }} />
                                         </div>
                                     )}
@@ -276,10 +276,10 @@ export default function GoalsPage() {
                     <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-900/20 to-indigo-900/10 p-5">
                         <div className="flex items-center gap-2 mb-1">
                             <Zap className="w-4 h-4 text-violet-400" />
-                            <p className="text-sm font-semibold text-zinc-100">Total XP</p>
+                            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Total XP</p>
                         </div>
                         <p className="text-4xl font-black text-violet-300">{totalXp}</p>
-                        <div className="mt-3 text-[11px] text-zinc-400 space-y-1">
+                        <div className="mt-3 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-1">
                             <p>✓ {achievements.filter(a => a.unlocked).length} achievements unlocked</p>
                             <p>⬜ {achievements.filter(a => !a.unlocked).length} achievements remaining</p>
                         </div>

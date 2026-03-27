@@ -21,8 +21,8 @@ export function ChartCard({ title, subtitle, action, children, className, noPadd
         )}>
             <div className="flex items-center justify-between px-5 py-4 border-b border-zinc-100 dark:border-white/5">
                 <div>
-                    <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
-                    {subtitle && <p className="text-[11px] text-zinc-400 mt-0.5">{subtitle}</p>}
+                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
+                    {subtitle && <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">{subtitle}</p>}
                 </div>
                 {action && <div className="flex-shrink-0">{action}</div>}
             </div>

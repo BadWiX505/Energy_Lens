@@ -19,16 +19,16 @@ export function Navbar({ title, onMenuClick }: NavbarProps) {
 
     return (
         <>
-            <header className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 h-14 bg-zinc-950/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-white/5">
+            <header className="sticky top-0 z-20 flex items-center justify-between px-4 sm:px-6 h-14 bg-white/80 dark:bg-zinc-950/80 backdrop-blur-md border-b border-black/5 dark:border-white/5">
                 {/* Left: hamburger + title */}
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onMenuClick}
-                        className="lg:hidden p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/5 transition-colors"
+                        className="lg:hidden p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-white hover:bg-black/5 dark:bg-white/5 transition-colors"
                     >
                         <Menu className="w-5 h-5" />
                     </button>
-                    <h1 className="text-sm font-semibold text-zinc-100">{title}</h1>
+                    <h1 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</h1>
                 </div>
 
                 {/* Right: actions */}
@@ -36,7 +36,7 @@ export function Navbar({ title, onMenuClick }: NavbarProps) {
                     {/* Tips */}
                     <button
                         onClick={() => setTipsOpen(true)}
-                        className="relative p-2 rounded-lg text-zinc-400 hover:text-amber-400 hover:bg-amber-400/10 transition-all"
+                        className="relative p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-amber-400 hover:bg-amber-400/10 transition-all"
                         title="Energy Tips"
                     >
                         <Lightbulb className="w-5 h-5" />
@@ -45,7 +45,7 @@ export function Navbar({ title, onMenuClick }: NavbarProps) {
                     {/* Alerts */}
                     <a
                         href="/alerts"
-                        className="relative p-2 rounded-lg text-zinc-400 hover:text-violet-400 hover:bg-violet-400/10 transition-all"
+                        className="relative p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-violet-400 hover:bg-violet-400/10 transition-all"
                         title="Alerts"
                     >
                         <Bell className="w-5 h-5" />

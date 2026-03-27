@@ -5,11 +5,14 @@ import { eventBus } from './events/eventBus';
 import dotenv from 'dotenv';
 dotenv.config();
 import {client} from './common/mqtt/mqtt.client';
+import router from './routes';
+import { errorHandler } from './common/errors/middleware';
 const app = express();
-
 // console.log('MQTT Client initialized:', client ? 'Success' : 'Failed to initialize MQTT client');
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());
+app.use('/api', router);
+app.use(errorHandler);
 
 export default app;
