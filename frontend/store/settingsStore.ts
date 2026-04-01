@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
 import { persist } from 'zustand/middleware';
 import type { UserSettings, Home, Device } from '@/types';
-import { DEFAULT_SETTINGS, MOCK_HOMES } from '@/lib/mockData';
+import { DEFAULT_SETTINGS } from '@/lib/mockData';
 
 interface SettingsState {
     settings: UserSettings;
@@ -15,8 +15,11 @@ interface SettingsActions {
     setHomes: (homes: Home[]) => void;
     selectHome: (id: string) => void;
     addHome: (home: Home) => void;
+    updateHome: (id: string, patch: Partial<Omit<Home, 'id'>>) => void;
     removeHome: (id: string) => void;
     addDevice: (homeId: string, device: Device) => void;
+    updateDeviceInHome: (homeId: string, deviceId: string, patch: Partial<Device>) => void;
+    setDevicesForHome: (homeId: string, devices: Device[]) => void;
     removeDevice: (homeId: string, deviceId: string) => void;
 }
 
@@ -24,8 +27,8 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
     persist(
         immer((set) => ({
             settings: DEFAULT_SETTINGS,
-            homes: MOCK_HOMES,
-            selectedHomeId: MOCK_HOMES[0].id,
+            homes: [],
+            selectedHomeId: '',
 
             updateSettings: (partial) =>
                 set((s) => {
@@ -34,7 +37,15 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
 
             setHomes: (homes) =>
                 set((s) => {
-                    s.homes = homes;
+                    // API never returns nested devices; preserve per-home lists so a later
+                    // setHomes (re-fetch, persist rehydrate timing, etc.) does not wipe them.
+                    s.homes = homes.map((h) => {
+                        const prev = s.homes.find((p) => p.id === h.id);
+                        return { ...h, devices: prev?.devices };
+                    });
+                    if (!s.selectedHomeId || !homes.some((h) => h.id === s.selectedHomeId)) {
+                        s.selectedHomeId = homes.length > 0 ? homes[0].id : '';
+                    }
                 }),
 
             selectHome: (id) =>
@@ -48,6 +59,12 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
                     if (!s.selectedHomeId) {
                         s.selectedHomeId = home.id;
                     }
+                }),
+
+            updateHome: (id, patch) =>
+                set((s) => {
+                    const home = s.homes.find((h) => h.id === id);
+                    if (home) Object.assign(home, patch);
                 }),
 
             removeHome: (id) =>
@@ -67,6 +84,19 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
                     }
                 }),
 
+            updateDeviceInHome: (homeId, deviceId, patch) =>
+                set((s) => {
+                    const home = s.homes.find((h) => h.id === homeId);
+                    const d = home?.devices?.find((x) => x.id === deviceId);
+                    if (d) Object.assign(d, patch);
+                }),
+
+            setDevicesForHome: (homeId, devices) =>
+                set((s) => {
+                    const home = s.homes.find((h) => h.id === homeId);
+                    if (home) home.devices = devices;
+                }),
+
             removeDevice: (homeId, deviceId) =>
                 set((s) => {
                     const home = s.homes.find((h) => h.id === homeId);
@@ -75,6 +105,25 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
                     }
                 }),
         })),
-        { name: 'energy-lens-settings' }
+        {
+            name: 'energy-lens-settings',
+            partialize: (state) => ({
+                settings: state.settings,
+                selectedHomeId: state.selectedHomeId,
+            }),
+            // Older persisted snapshots included `homes`; ignore them on hydrate so they
+            // cannot overwrite homes (and nested devices) loaded from the API.
+            merge: (persistedState, currentState) => {
+                if (!persistedState || typeof persistedState !== 'object') {
+                    return currentState;
+                }
+                const p = persistedState as Partial<SettingsState & SettingsActions>;
+                return {
+                    ...currentState,
+                    ...p,
+                    homes: currentState.homes,
+                };
+            },
+        }
     )
 );

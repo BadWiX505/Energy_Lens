@@ -23,7 +23,7 @@ function generateEnergyMetrics() {
   return {
     timestamp: new Date().toISOString(),
     tags : {
-      device_id: 'energy_meter_001',
+      device_id: '550e8400-e29b-41d4-a716-446655440000',
     },
     metrics: {
       voltage: parseFloat(voltage.toFixed(2)),

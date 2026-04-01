@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client';
+import {prisma} from '../../common/config/prisma';
 import { CreateHomeDto, UpdateHomeDto, GetHomesQueryDto, GetHomeByIdDto, DeleteHomeDto } from './homes.types';
 
-const prisma = new PrismaClient();
 
 export class HomesRepository {
   
@@ -21,13 +20,7 @@ export class HomesRepository {
         id: getHomeByIdDto.id,
         userId: getHomeByIdDto.userId, // Ensure user owns this home
       },
-      include: {
-        devices: true,
-        preferences: true,
-        alerts: true,
-        energyGoals: true,
-        energyScores: true,
-      },
+      
     });
   }
 
@@ -40,13 +33,7 @@ export class HomesRepository {
       },
       skip,
       take,
-      include: {
-        devices: true,
-        preferences: true,
-        alerts: true,
-        energyGoals: true,
-        energyScores: true,
-      },
+     
       orderBy: {
         createdAt: 'desc',
       },

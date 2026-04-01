@@ -12,7 +12,6 @@ import type {
     Goal,
     Achievement,
     UserSettings,
-    Home,
     ComparisonData,
     EnergyBreakdown,
 } from '@/types';
@@ -326,13 +325,6 @@ export const DEFAULT_SETTINGS: UserSettings = {
     enable_notifications: true,
     created_at: subDays(new Date(), 30).toISOString(),
 };
-
-// ── Homes ────────────────────────────────────────────────────
-
-export const MOCK_HOMES: Home[] = [
-    { id: 'h1', name: 'Main Residence', location: 'Algiers, Algeria', timezone: 'Africa/Algiers' },
-    { id: 'h2', name: 'Summer House', location: 'Tizi Ouzou, Algeria', timezone: 'Africa/Algiers' },
-];
 
 // ── Bill Prediction ──────────────────────────────────────────
 

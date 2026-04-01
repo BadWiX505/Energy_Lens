@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { isMockMode, onMockEvent, offMockEvent } from '@/lib/socket';
+import { useAuthStore } from '@/store/authStore';
 import { useEnergyStore } from '@/store/energyStore';
 import type { EnergyMetrics, EnergyHistoryPoint } from '@/types';
 
@@ -11,12 +12,18 @@ import type { EnergyMetrics, EnergyHistoryPoint } from '@/types';
  */
 export function useEnergy() {
     const { metrics, history, setMetrics, pushHistory } = useEnergyStore();
+    const { token } = useAuthStore();
 
     useEffect(() => {
         if (!isMockMode) {
+            // Only subscribe if token is available
+            if (!token) return;
+            
             // Real socket: import lazily to avoid SSR issues
             import('@/lib/socket').then(({ getSocket }) => {
-                const socket = getSocket();
+                const socket = getSocket(token);
+                if (!socket) return; // Handle null case
+                
                 const handler = (data: { metrics: EnergyMetrics }) => {
                     setMetrics(data.metrics);
                     const point: EnergyHistoryPoint = {
@@ -47,7 +54,7 @@ export function useEnergy() {
             onMockEvent('energy', handler);
             return () => offMockEvent('energy', handler);
         }
-    }, [setMetrics, pushHistory]);
+    }, [setMetrics, pushHistory, token]);
 
     return { metrics, history };
 }

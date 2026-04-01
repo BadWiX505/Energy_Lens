@@ -8,7 +8,7 @@ import {client} from './common/mqtt/mqtt.client';
 import router from './routes';
 import { errorHandler } from './common/errors/middleware';
 const app = express();
-// console.log('MQTT Client initialized:', client ? 'Success' : 'Failed to initialize MQTT client');
+console.log('MQTT Client initialized:', client ? 'Success' : 'Failed to initialize MQTT client');
 app.use(morgan('dev'));
 app.use(cors());
 app.use(express.json());

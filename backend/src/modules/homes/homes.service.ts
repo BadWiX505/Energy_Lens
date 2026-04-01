@@ -45,11 +45,7 @@ export class HomesService {
     const homes = await this.homesRepo.getHomesByUserId(getHomesQueryDto);
     const count = await this.homesRepo.countHomesForUser(getHomesQueryDto.userId);
 
-    return {
-      data: homes,
-      total: count,
-      count: homes.length,
-    };
+    return homes;
   }
 
   async updateHome(id: string, userId: string, updateHomeDto: UpdateHomeDto) {

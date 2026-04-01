@@ -1,6 +1,8 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import authRouter from './modules/auth/auth.routes';
 import homesRouter from './modules/homes/homes.routes';
+import devicesRouter from './modules/devices/devices.routes';
+import preferencesRouter from './modules/preferences/preferences.routes';
 import { authenticateUser } from './modules/auth/auth.middleware';
 
 const router = Router();
@@ -21,5 +23,7 @@ router.use((req: Request, res: Response, next: NextFunction) => {
 
 // Mount authenticated routes
 router.use('/homes', homesRouter);
+router.use('/devices', devicesRouter);
+router.use('/preferences', preferencesRouter);
 
 export default router;

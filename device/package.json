@@ -3,6 +3,7 @@
   "dependencies": {
     "@influxdata/influxdb3-client": "^2.1.0",
     "dotenv": "^17.3.1",
-    "mqtt": "^5.15.0"
+    "mqtt": "^5.15.0",
+    "socket.io-client": "^4.8.3"
   }
 }

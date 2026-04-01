@@ -3,10 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useTheme } from 'next-themes';
-import { updateSettings } from '@/lib/api';
-import type { UserSettings, Home } from '@/types';
+import { getMyHomesApi } from '@/lib/api';
+import { createPreferenceApi, defaultFormSettings, getPreferenceByHomeApi } from '@/lib/preferencesApi';
+import type { UserSettings } from '@/types';
 import {
-    Settings, Sun, Moon, Monitor, Home as HomeIcon, Plus, Check, Save, AlertTriangle, Info
+    Settings, Sun, Moon, Monitor, Home as HomeIcon, Check, Save, AlertTriangle, Info
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
@@ -37,43 +38,75 @@ function ThresholdHint({ value, low, high, unit }: { value: number; low: number;
 }
 
 export default function SettingsPage() {
-    const { settings, updateSettings: updateStore, homes, selectedHomeId, selectHome, addHome } = useSettingsStore();
+    const { updateSettings: updateStore, homes, selectedHomeId, selectHome, setHomes } = useSettingsStore();
     const { theme, setTheme } = useTheme();
-    const [form, setForm] = useState<UserSettings>(settings);
+    const [form, setForm] = useState<UserSettings>(() => defaultFormSettings());
     const [saving, setSaving] = useState(false);
-    const [newHomeName, setNewHomeName] = useState('');
-    const [newHomeLocation, setNewHomeLocation] = useState('');
-    const [showAddHome, setShowAddHome] = useState(false);
+    const [prefLoading, setPrefLoading] = useState(false);
+    const [prefError, setPrefError] = useState('');
 
-    useEffect(() => { setForm(settings); }, [settings]);
+    useEffect(() => {
+        if (homes.length > 0) return;
+        let cancelled = false;
+        getMyHomesApi()
+            .then((data) => {
+                if (!cancelled) setHomes(data || []);
+            })
+            .catch(() => {
+                if (!cancelled) toast.error('Could not load homes.');
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [homes.length, setHomes]);
+
+    useEffect(() => {
+        if (!selectedHomeId) {
+            setForm(defaultFormSettings());
+            return;
+        }
+        let cancelled = false;
+        setPrefLoading(true);
+        setPrefError('');
+        getPreferenceByHomeApi(selectedHomeId)
+            .then((pref) => {
+                if (cancelled) return;
+                const next = pref ?? defaultFormSettings();
+                setForm(next);
+                updateStore(next);
+            })
+            .catch((err: unknown) => {
+                if (cancelled) return;
+                const msg = err instanceof Error ? err.message : 'Failed to load preferences';
+                setPrefError(msg);
+                toast.error(msg);
+            })
+            .finally(() => {
+                if (!cancelled) setPrefLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [selectedHomeId, updateStore]);
 
     const handleSave = async (e: React.FormEvent) => {
         e.preventDefault();
+        if (!selectedHomeId) {
+            toast.error('Select a home first.');
+            return;
+        }
         setSaving(true);
         try {
-            const updated = await updateSettings(form);
-            updateStore(updated);
-            toast.success('Settings saved successfully!');
-        } catch {
-            toast.error('Failed to save settings.');
+            const created = await createPreferenceApi(selectedHomeId, form);
+            setForm(created);
+            updateStore(created);
+            toast.success('Preferences saved (new record created).');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Failed to save preferences.';
+            toast.error(msg);
         } finally {
             setSaving(false);
         }
-    };
-
-    const handleAddHome = () => {
-        if (!newHomeName.trim()) return;
-        const home: Home = {
-            id: Math.random().toString(36).slice(2),
-            name: newHomeName.trim(),
-            location: newHomeLocation.trim() || 'Unknown',
-            timezone: 'UTC',
-        };
-        addHome(home);
-        setNewHomeName('');
-        setNewHomeLocation('');
-        setShowAddHome(false);
-        toast.success(`Home "${home.name}" added`);
     };
 
     const field = (key: keyof UserSettings) => ({
@@ -95,10 +128,25 @@ export default function SettingsPage() {
                     <Settings className="w-5 h-5 text-violet-400" />
                     Settings
                 </h2>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">Preferences, thresholds, and profile configuration</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Per-home energy preferences (loaded from your backend; saving creates a new preference record).
+                </p>
             </div>
 
+            {prefError && !prefLoading && (
+                <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-xs text-amber-800 dark:text-amber-200">
+                    {prefError}
+                </div>
+            )}
+
             <form onSubmit={handleSave} className="space-y-5">
+                {prefLoading && (
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
+                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+                        Loading preferences for selected home…
+                    </p>
+                )}
+
                 {/* Thresholds */}
                 <Section title="Power Thresholds" description="Set warning levels for power monitoring">
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -195,14 +243,24 @@ export default function SettingsPage() {
                     </label>
                 </Section>
 
-                {/* Account info */}
-                <Section title="Account" description="Profile and metadata">
+                {/* Preference record metadata */}
+                <Section title="Preference record" description="Timestamps from the backend preference row">
                     <div className="grid sm:grid-cols-2 gap-4">
-                        <FormField label="Account Created">
+                        <FormField label="Created / last loaded">
                             <input
                                 type="text"
                                 readOnly
-                                value={new Date(form.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
+                                value={
+                                    Number.isNaN(new Date(form.created_at).getTime())
+                                        ? '—'
+                                        : new Date(form.created_at).toLocaleString('en-US', {
+                                              year: 'numeric',
+                                              month: 'short',
+                                              day: 'numeric',
+                                              hour: '2-digit',
+                                              minute: '2-digit',
+                                          })
+                                }
                                 className="w-full rounded-xl px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-200/50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 cursor-not-allowed"
                             />
                         </FormField>
@@ -210,15 +268,18 @@ export default function SettingsPage() {
                 </Section>
 
                 {/* Save */}
-                <div className="flex justify-end">
+                <div className="flex flex-col items-end gap-1">
                     <button
                         type="submit"
-                        disabled={saving}
+                        disabled={saving || prefLoading || !selectedHomeId || homes.length === 0}
                         className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-sm text-white font-semibold transition-all shadow-lg shadow-violet-500/20"
                     >
                         <Save className="w-4 h-4" />
-                        {saving ? 'Saving...' : 'Save Settings'}
+                        {saving ? 'Saving…' : 'Save preferences'}
                     </button>
+                    {!selectedHomeId && homes.length > 0 && (
+                        <p className="text-[10px] text-zinc-500">Choose a home in the list below or the sidebar.</p>
+                    )}
                 </div>
             </form>
 
@@ -270,33 +331,10 @@ export default function SettingsPage() {
                             {home.id === selectedHomeId && <Check className="w-4 h-4 text-violet-400 flex-shrink-0" />}
                         </div>
                     ))}
-
-                    {showAddHome ? (
-                        <div className="p-3 rounded-xl border border-violet-500/20 bg-violet-500/5 space-y-2">
-                            <input
-                                value={newHomeName}
-                                onChange={(e) => setNewHomeName(e.target.value)}
-                                placeholder="Home name"
-                                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
-                            />
-                            <input
-                                value={newHomeLocation}
-                                onChange={(e) => setNewHomeLocation(e.target.value)}
-                                placeholder="Location (city, country)"
-                                className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
-                            />
-                            <div className="flex gap-2">
-                                <button onClick={() => setShowAddHome(false)} className="flex-1 py-1.5 rounded-lg text-xs text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:text-zinc-200 border border-black/10 dark:border-white/10 transition-colors">Cancel</button>
-                                <button onClick={handleAddHome} className="flex-1 py-1.5 rounded-lg text-xs text-white bg-violet-600 hover:bg-violet-500 transition-colors font-semibold">Add</button>
-                            </div>
-                        </div>
-                    ) : (
-                        <button
-                            onClick={() => setShowAddHome(true)}
-                            className="flex items-center gap-2 w-full p-3 rounded-xl border border-dashed border-black/10 dark:border-white/10 text-zinc-400 dark:text-zinc-500 hover:text-zinc-700 dark:text-zinc-300 hover:border-white/20 transition-all text-xs"
-                        >
-                            <Plus className="w-4 h-4" /> Add Home
-                        </button>
+                    {homes.length === 0 && (
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                            No homes yet. Add homes from the Homes & Devices page.
+                        </p>
                     )}
                 </div>
             </Section>

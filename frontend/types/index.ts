@@ -10,10 +10,13 @@ export interface User {
   name: string;
 }
 
+/** Matches backend DeviceResponseDto after mapping */
 export interface Device {
   id: string;
+  homeId: string;
   name: string;
-  code: string;
+  deviceType: string | null;
+  createdAt?: string;
 }
 
 export interface EnergyMetrics {
@@ -123,6 +126,23 @@ export interface EnergyStat {
 }
 
 // WebSocket event payloads
+export interface EnergyMetricsPayload {
+  deviceId: string;
+  timestamp: string;
+  tags: {
+    device_id: string;
+    [key: string]: string;
+  };
+  metrics: {
+    voltage: number;
+    current: number;
+    power_watts: number;
+    energy_kwh: number;
+    frequency: number;
+    [key: string]: number | string;
+  };
+}
+
 export interface SocketEnergyEvent {
   metrics: EnergyMetrics;
 }

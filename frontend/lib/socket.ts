@@ -16,18 +16,19 @@
 // ============================================================
 
 import { io, Socket } from 'socket.io-client';
-import type { EnergyMetrics, Alert } from '@/types';
+import type { EnergyMetrics, Alert, EnergyMetricsPayload } from '@/types';
 
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:8000';
+const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001';
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
 
 // ── Event definitions ────────────────────────────────────────
 
 export interface ServerToClientEvents {
+    'energy:metrics': (payload: EnergyMetricsPayload) => void;
     energy: (data: { metrics: EnergyMetrics }) => void;
+    'alert:received': (payload: any) => void;
     alert: (data: { alert: Alert }) => void;
-    connected: () => void;
-    disconnected: () => void;
+    connected: (data: { socketId: string; userId: string; timestamp: string }) => void;
 }
 
 export interface ClientToServerEvents {
@@ -39,24 +40,45 @@ export interface ClientToServerEvents {
 
 let socket: Socket<ServerToClientEvents, ClientToServerEvents> | null = null;
 
-export function getSocket(): Socket<ServerToClientEvents, ClientToServerEvents> {
-    if (!socket) {
-        if (USE_MOCK) {
-            // In mock mode: create a disconnected socket so hooks still work,
-            // actual data comes from the mock event simulator below
-            socket = io(WS_URL, {
-                autoConnect: false,
-                transports: ['websocket'],
-            }) as Socket<ServerToClientEvents, ClientToServerEvents>;
-        } else {
-            socket = io(WS_URL, {
-                transports: ['websocket'],
-                reconnectionAttempts: 5,
-                reconnectionDelay: 2000,
-            }) as Socket<ServerToClientEvents, ClientToServerEvents>;
-            socket.connect();
-        }
+/**
+ * Initialize Socket.IO connection with JWT authentication
+ * ⚠️  Socket connection is ONLY established if token is provided
+ * @param token - JWT token from authStore (REQUIRED for connection)
+ * @returns Socket instance or null if token not provided
+ */
+export function getSocket(token?: string): Socket<ServerToClientEvents, ClientToServerEvents> | null {
+    // Validate token presence
+    if (!token) {
+        console.warn('[Socket] ⚠️  Connection requested but NO TOKEN PROVIDED - socket will not be initialized');
+        return null;
     }
+
+    console.log('[Socket] ✓ Token received - proceeding with connection');
+
+    // Only initialize socket once and only if token is available
+    if (!socket) {
+        console.log('[Socket] Initializing Socket.IO connection to:', WS_URL);
+        
+        socket = io(WS_URL, {
+            transports: ['websocket'],
+            reconnectionAttempts: 5,
+            reconnectionDelay: 2000,
+            auth : { token }, 
+            extraHeaders: { Authorization: `Bearer ${token}` },
+        }) as Socket<ServerToClientEvents, ClientToServerEvents>;
+        
+        // Log connection events
+        socket.on('connect', () => {
+            console.log('[Socket] ✓ Connected successfully, socket ID:', socket?.id);
+        });
+        
+        socket.on('connect_error', (error: any) => {
+            console.error('[Socket] ✗ Connection error:', error);
+        });
+        
+        socket.connect();
+    }
+    
     return socket;
 }
 
