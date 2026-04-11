@@ -129,6 +129,10 @@ export interface Goal {
   current: number;
   unit: string;
   label: string;
+  status?: string;
+  duration: number;
+  endDate: string;
+  daysRemaining: number;
   createdAt: string;
 }
 
@@ -141,6 +145,42 @@ export interface Achievement {
   unlockedAt?: string;
   progress?: number;      // 0-100
   xp: number;
+  isRead: boolean;
+  userAchievementId?: string;
+}
+
+export interface EnergyScore {
+  id: string;
+  homeId: string;
+  score: number;
+  type: string;
+  label?: string;   // why the score was awarded
+  date: string;
+  isRead: boolean;
+}
+
+export interface CommunityStats {
+  yourScore: number;
+  avgScore: number;
+  topScore: number;
+  totalHomes: number;
+  yourPercentile: number;
+}
+
+export interface GoalsPageData {
+  goals: Goal[];
+  totalScore: number;
+  newScores: EnergyScore[];
+  energyScores: EnergyScore[];
+}
+
+export interface RewardItem {
+  id: string;
+  name: string;
+  description: string;
+  cost: number;
+  category: string;
+  icon: string;
 }
 
 export interface UserSettings {

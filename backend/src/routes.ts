@@ -7,6 +7,8 @@ import energyRouter from './modules/energy/energy.routes';
 import alertsRouter from './modules/alerts/alerts.routes';
 import tipsRouter from './modules/tips/tips.routes';
 import insightsRouter from './modules/insights/insights.routes';
+import goalsRouter from './modules/goals/goals.routes';
+import achievementsRouter from './modules/achievements/achievements.routes';
 import { authenticateUser } from './modules/auth/auth.middleware';
 
 const router = Router();
@@ -33,5 +35,7 @@ router.use('/energy', energyRouter);
 router.use('/alerts', alertsRouter);
 router.use('/tips', tipsRouter);
 router.use('/insights', insightsRouter);
+router.use('/goals', goalsRouter);
+router.use('/achievements', achievementsRouter);
 
 export default router;

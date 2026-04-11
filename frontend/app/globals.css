@@ -76,6 +76,36 @@ body {
   animation: fade-in 0.35s ease-out both;
 }
 
+@keyframes tip-in {
+  from {
+    opacity: 0;
+    transform: translateY(36px) scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes tip-out {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-36px) scale(0.94);
+  }
+}
+
+.animate-tip-in {
+  animation: tip-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-tip-out {
+  animation: tip-out 0.38s cubic-bezier(0.55, 0, 1, 0.45) both;
+}
+
 /* ── Recharts overrides ───────────────────────────────── */
 .recharts-default-tooltip {
   display: none !important;

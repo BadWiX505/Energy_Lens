@@ -1,65 +1,53 @@
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import type { Goal, Achievement } from '@/types';
-import { MOCK_GOALS, MOCK_ACHIEVEMENTS } from '@/lib/mockData';
+import type { Goal, Achievement, EnergyScore, CommunityStats } from '@/types';
 
 interface GoalsState {
     goals: Goal[];
     achievements: Achievement[];
-    efficiencyScore: number;
-    totalXp: number;
+    totalScore: number;
+    energyScores: EnergyScore[];
+    communityStats: CommunityStats | null;
+    newScores: EnergyScore[];
+    newAchievements: Achievement[];
 }
 
 interface GoalsActions {
     setGoals: (goals: Goal[]) => void;
     addGoal: (goal: Goal) => void;
     removeGoal: (id: string) => void;
-    updateGoalProgress: (id: string, current: number) => void;
     setAchievements: (achievements: Achievement[]) => void;
-    unlockAchievement: (id: string) => void;
+    setTotalScore: (score: number) => void;
+    setEnergyScores: (scores: EnergyScore[]) => void;
+    setCommunityStats: (stats: CommunityStats) => void;
+    setNewScores: (scores: EnergyScore[]) => void;
+    setNewAchievements: (achievements: Achievement[]) => void;
+    dismissCelebration: () => void;
 }
 
 export const useGoalsStore = create<GoalsState & GoalsActions>()(
     immer((set) => ({
-        goals: MOCK_GOALS,
-        achievements: MOCK_ACHIEVEMENTS,
-        efficiencyScore: 78,
-        totalXp: MOCK_ACHIEVEMENTS.filter((a) => a.unlocked).reduce((s, a) => s + a.xp, 0),
+        goals: [],
+        achievements: [],
+        totalScore: 0,
+        energyScores: [],
+        communityStats: null,
+        newScores: [],
+        newAchievements: [],
 
-        setGoals: (goals) =>
-            set((s) => {
-                s.goals = goals;
-            }),
-
-        addGoal: (goal) =>
-            set((s) => {
-                s.goals.push(goal);
-            }),
-
-        removeGoal: (id) =>
-            set((s) => {
-                s.goals = s.goals.filter((g) => g.id !== id);
-            }),
-
-        updateGoalProgress: (id, current) =>
-            set((s) => {
-                const g = s.goals.find((g) => g.id === id);
-                if (g) g.current = current;
-            }),
-
-        setAchievements: (achievements) =>
-            set((s) => {
-                s.achievements = achievements;
-            }),
-
-        unlockAchievement: (id) =>
-            set((s) => {
-                const a = s.achievements.find((a) => a.id === id);
-                if (a && !a.unlocked) {
-                    a.unlocked = true;
-                    a.unlockedAt = new Date().toISOString();
-                    s.totalXp += a.xp;
-                }
-            }),
+        setGoals: (goals) => set((s) => { s.goals = goals; }),
+        addGoal: (goal) => set((s) => { s.goals.push(goal); }),
+        removeGoal: (id) => set((s) => { s.goals = s.goals.filter((g) => g.id !== id); }),
+        setAchievements: (achievements) => set((s) => { s.achievements = achievements; }),
+        setTotalScore: (score) => set((s) => { s.totalScore = score; }),
+        setEnergyScores: (scores) => set((s) => { s.energyScores = scores; }),
+        setCommunityStats: (stats) => set((s) => { s.communityStats = stats; }),
+        setNewScores: (scores) => set((s) => { s.newScores = scores; }),
+        setNewAchievements: (achievements) => set((s) => { s.newAchievements = achievements; }),
+        dismissCelebration: () => set((s) => {
+            s.newScores = [];
+            s.newAchievements = [];
+        }),
     }))
 );
+

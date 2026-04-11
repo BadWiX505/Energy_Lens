@@ -9,14 +9,12 @@ import type { Alert } from '@/types';
 import React from 'react';
 import toast from 'react-hot-toast';
 import { AlertToast } from '@/components/ui/AlertToast';
+import { getSocket, isMockMode } from '@/lib/socket';
+
 /**
- * Hook to subscribe to real-time alerts for a specific home via WebSocket
- * 
- * Features:
- * - Automatically subscribes to home/{homeId} room
- * - Listens to alert:received events from the server
- * - Updates alertStore with received alerts
- * - Plays severity-based audio notifications
+ * Hook to subscribe to real-time alerts for a specific home via WebSocket.
+ * Uses static import + synchronous cleanup to prevent orphaned listeners
+ * (which would cause duplicate toasts when the effect re-runs).
  */
 export function useAlertsLiveData(homeId: string | null) {
     const { connected } = useSocket();
@@ -25,92 +23,62 @@ export function useAlertsLiveData(homeId: string | null) {
     const { playSound } = useAlertSound();
 
     useEffect(() => {
-        if (!homeId || !connected) {
+        if (!homeId || !connected || isMockMode) {
             return;
         }
 
-        let socket: Awaited<ReturnType<typeof import('@/lib/socket').getSocket>> | null;
+        const socket = getSocket(token || undefined);
+        if (!socket) return;
 
-        const subscribe = async () => {
-            const { getSocket, isMockMode } = await import('@/lib/socket');
+        const room = `home/${homeId}`;
+        socket.emit('subscribe', room);
 
-            if (isMockMode) {
-                console.log('[AlertsLiveData] Mock mode - not connecting to live alerts');
-                return;
-            }
+        const handleAlert = (payload: any) => {
+            const event = payload.payload || payload;
+            if (!event) return;
 
-            socket = getSocket(token || undefined);
+            const normalizedSeverity = event.severity;
+            const newAlert: Alert = {
+                id: event.alertId || Math.random().toString(36).slice(2),
+                type: 'system',
+                severity: normalizedSeverity,
+                title: event.title || normalizedSeverity.toUpperCase() + ' Alert',
+                message: event.description || '',
+                timestamp: event.timestamp || new Date().toISOString(),
+                read: false,
+            };
 
-            if (!socket) return;
+            addAlert(newAlert);
 
-            // Subscribe to home room to catch alerts targeting this home
-            const room = `home/${homeId}`;
-            socket.emit('subscribe', room);
-            console.log(`[AlertsLiveData] Subscribed to ${room}`);
+            playSound(normalizedSeverity).catch((err) =>
+                console.warn('[AlertsLiveData] Failed to play alert sound:', err)
+            );
 
-            const handleAlert = (payload: any) => {
-                console.log('[AlertsLiveData] Received alert:', payload);
-                const event = payload.payload || payload;
-                if (!event) return;
-
-                // Normalize severity (backend uses 'warnings' plural, frontend uses 'warning' singular)
-                const normalizedSeverity = event.severity;
-                // Map to frontend Alert interface
-                const newAlert: Alert = {
-                    id: event.alertId || Math.random().toString(36).slice(2),
-                    type: 'system',
-                    severity: normalizedSeverity,
-                    title: event.title || normalizedSeverity.toUpperCase() + ' Alert',
-                    message: event.description || '',
-                    timestamp: event.timestamp || new Date().toISOString(),
-                    read: false,
-                };
-
-                // Add alert to store (which triggers toast display)
-                addAlert(newAlert);
-
-                // Play sound based on severity
-                playSound(normalizedSeverity).catch(err =>
-                    console.warn('[AlertsLiveData] Failed to play alert sound:', err)
-                );
-                toast.custom((t) => React.createElement(AlertToast, {
-                    severity: event.severity,
-                    title: event.title || normalizedSeverity.toUpperCase() + ' Alert',
-                    description: event.description || '',
-                    onClose: () => toast.dismiss(t.id),
-                    onClick: () => {
-                        toast.dismiss(t.id);
-                        window.location.href = '/alerts';
-                    },
-                }), {
+            toast.custom(
+                (t) =>
+                    React.createElement(AlertToast, {
+                        severity: event.severity,
+                        title: event.title || normalizedSeverity.toUpperCase() + ' Alert',
+                        description: event.description || '',
+                        onClose: () => toast.dismiss(t.id),
+                        onClick: () => {
+                            toast.dismiss(t.id);
+                            window.location.href = '/alerts';
+                        },
+                    }),
+                {
                     duration: 5000,
                     position: 'top-right',
-                    style: {
-                        background: 'transparent',
-                        border: 'none',
-                        padding: 0,
-                        boxShadow: 'none',
-                    },
-                });
-            };
-
-            socket.on('alert:received', handleAlert);
-
-            return () => {
-                if (!socket) return;
-                socket.off('alert:received', handleAlert);
-                socket.emit('unsubscribe', room);
-                console.log(`[AlertsLiveData] Unsubscribed from ${room}`);
-            };
+                    style: { background: 'transparent', border: 'none', padding: 0, boxShadow: 'none' },
+                }
+            );
         };
 
-        let cleanup: (() => void) | undefined;
-        subscribe().then((c) => {
-            cleanup = c;
-        }).catch(console.error);
+        socket.on('alert:received', handleAlert);
 
         return () => {
-            if (cleanup) cleanup();
+            socket.off('alert:received', handleAlert);
+            socket.emit('unsubscribe', room);
         };
     }, [homeId, connected, addAlert, token, playSound]);
 }

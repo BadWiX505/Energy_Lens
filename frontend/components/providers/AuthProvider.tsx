@@ -27,10 +27,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                     updateUser(data.user);
                 }
             } catch (error) {
-                // Token is invalid/expired; log out and redirect only in this case.
-                logout();
-                if (pathname !== '/login') {
-                    router.push('/login');
+                // Only logout if the token was explicitly rejected (401 Unauthorized).
+                // Network errors, 5xx, etc. should not log the user out.
+                if ((error as { status?: number }).status === 401) {
+                    logout();
+                } else {
+                    console.error('Token validation failed (non-auth error):', error);
                 }
                 return;
             }
@@ -64,7 +66,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (isAuthenticated && token) {
             validateToken();
         }
-    }, [isAuthenticated, token, logout, router, updateUser, pathname, setHomes, setDevicesForHome, setHomesLoaded]);
+    }, [isAuthenticated, token, logout, updateUser, setHomes, setDevicesForHome, setHomesLoaded]);
 
     useEffect(() => {
         if (!mounted) return;

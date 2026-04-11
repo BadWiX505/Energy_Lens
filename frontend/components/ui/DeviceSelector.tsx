@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useEnergyStore } from '@/store/energyStore';
 import { ChevronDown } from 'lucide-react';
@@ -25,6 +25,15 @@ export function DeviceSelector() {
     const selectedHome = homes.find((h) => h.id === selectedHomeId);
     const devices = selectedHome?.devices || [];
 
+    // When the selected home changes, reset the device to the new home's first device.
+    useEffect(() => {
+        if (devices.length === 0) return;
+        const belongsToHome = devices.some((d) => d.id === selectedDeviceId);
+        if (!belongsToHome) {
+            setSelectedDevice(devices[0].id);
+        }
+    }, [selectedHomeId]); // eslint-disable-line react-hooks/exhaustive-deps
+
     // Show loading state if no devices
     if (devices.length === 0) {
         return (
@@ -37,9 +46,6 @@ export function DeviceSelector() {
 
     // Auto-select first device if none selected
     const currentDevice = devices.find((d) => d.id === selectedDeviceId) || devices[0];
-    if (!selectedDeviceId && currentDevice) {
-        setSelectedDevice(currentDevice.id);
-    }
 
     const handleSelectDevice = (deviceId: string) => {
         setSelectedDevice(deviceId);

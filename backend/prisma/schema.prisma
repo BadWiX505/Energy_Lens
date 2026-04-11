@@ -33,7 +33,7 @@ model Home {
   name      String?
   location  String?
   createdAt DateTime @default(now()) @map("created_at")
-
+  totalScore Int     @default(0) @map("total_score")
   user           User              @relation(fields: [userId], references: [id], onDelete: Cascade)
   devices        Device[]
   preferences    Preference[]
@@ -101,14 +101,21 @@ model Alert {
 // =====================
 // ENERGY GOALS
 // =====================
+
 model EnergyGoal {
-  id            String   @id @default(uuid()) @db.Uuid
-  homeId        String   @map("home_id") @db.Uuid
-  dailyLimitKwh Float?   @map("daily_limit_kwh")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id                  String   @id @default(uuid()) @db.Uuid
+  homeId              String   @map("home_id") @db.Uuid
+  type                String   // 'daily' | 'weekly' | 'monthly'
+  targetValue         Float    // e.g., kWh or cost amount
+  targetMetric        String   // 'energy' | 'cost' | 'power'
+  label               String?  // user-friendly label
+  duration            Int      @default(1)         // number of periods (e.g. 3 for "3 days")
+  endDate             DateTime @map("end_date")    // goal deadline = createdAt + duration * periodMs
+  createdAt           DateTime @default(now()) @map("created_at")
+  status              String   @default("active") // 'active' | 'achieved' | 'missed'
+  home                Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
 
-  home          Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
-
+  @@unique([homeId, type, targetMetric])
   @@map("energy_goals")
 }
 
@@ -116,14 +123,16 @@ model EnergyGoal {
 // ENERGY SCORES
 // =====================
 model EnergyScore {
-  id      String    @id @default(uuid()) @db.Uuid
-  homeId  String    @map("home_id") @db.Uuid
-  score   Int?
-  date    DateTime? @db.Date
+  id      String   @id @default(uuid()) @db.Uuid
+  homeId  String   @map("home_id") @db.Uuid
+  score   Int      @default(0)
+  type    String   @default("goal")  // 'goal' | 'achievement'
+  label   String?                    // why the score was awarded (e.g., "Daily energy goal completed")
+  date    DateTime @default(now())   // exact timestamp of award
+  isRead  Boolean  @default(false)   @map("is_read")
 
-  home    Home      @relation(fields: [homeId], references: [id], onDelete: Cascade)
+  home    Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
 
-  @@unique([homeId, date])
   @@map("energy_scores")
 }
 
@@ -134,8 +143,10 @@ model Achievement {
   id               String            @id @default(uuid()) @db.Uuid
   name             String?
   description      String?
-
+  lucideIconName  String?          @map("lucide_icon_name") // e.g., 'Trophy', 'Star'
+  scoreValue       Int?             @map("score_value") // How much score this achievement is worth
   userAchievements UserAchievement[]
+  isRead           Boolean?         @default(false) @map("is_read")
 
   @@map("achievements")
 }
@@ -145,10 +156,11 @@ model UserAchievement {
   homeId        String      @map("home_id") @db.Uuid
   achievementId String      @map("achievement_id") @db.Uuid
   earnedAt      DateTime    @default(now()) @map("earned_at")
-
+  isRead       Boolean?   @default(false) @map("is_read")
   home          Home        @relation(fields: [homeId], references: [id], onDelete: Cascade)
   achievement   Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
 
+  @@unique([homeId, achievementId])
   @@map("user_achievements")
 }
 

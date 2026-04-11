@@ -15,6 +15,7 @@ const PAGE_TITLES: Record<string, string> = {
 
 export function RootLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
     const pathname = usePathname();
     const title = PAGE_TITLES[pathname] ?? 'Energy Lens';
     const isAuthRoute = pathname === '/login';
@@ -29,7 +30,12 @@ export function RootLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <div className="flex h-screen overflow-hidden bg-zinc-50 dark:bg-zinc-950">
-            <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <Sidebar
+                open={sidebarOpen}
+                onClose={() => setSidebarOpen(false)}
+                collapsed={sidebarCollapsed}
+                onToggleCollapse={() => setSidebarCollapsed((c) => !c)}
+            />
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <Navbar title={title} onMenuClick={() => setSidebarOpen(true)} />
                 <main className="flex-1 overflow-y-auto">

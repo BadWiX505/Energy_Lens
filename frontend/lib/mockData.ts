@@ -3,7 +3,7 @@
 // Replace with real API responses when backend is ready
 // ============================================================
 
-import { format, subHours, subDays, subWeeks, subMonths } from 'date-fns';
+import { format, subHours, subDays, subWeeks, subMonths, addDays } from 'date-fns';
 import type {
     EnergyMetrics,
     EnergyHistoryPoint,
@@ -267,6 +267,9 @@ export const MOCK_GOALS: Goal[] = [
         current: 11.3,
         unit: 'kWh',
         label: 'Daily Energy Limit',
+        duration: 7,
+        endDate: addDays(new Date(), 1).toISOString(),
+        daysRemaining: 1,
         createdAt: subDays(new Date(), 7).toISOString(),
     },
     {
@@ -277,6 +280,9 @@ export const MOCK_GOALS: Goal[] = [
         current: 54.2,
         unit: 'USD',
         label: 'Monthly Budget',
+        duration: 1,
+        endDate: addDays(new Date(), 15).toISOString(),
+        daysRemaining: 15,
         createdAt: subDays(new Date(), 15).toISOString(),
     },
     {
@@ -287,6 +293,9 @@ export const MOCK_GOALS: Goal[] = [
         current: 1650,
         unit: 'W',
         label: 'Peak Power Limit',
+        duration: 3,
+        endDate: addDays(new Date(), 1).toISOString(),
+        daysRemaining: 1,
         createdAt: subDays(new Date(), 3).toISOString(),
     },
 ];
@@ -294,12 +303,12 @@ export const MOCK_GOALS: Goal[] = [
 // ── Achievements ─────────────────────────────────────────────
 
 export const MOCK_ACHIEVEMENTS: Achievement[] = [
-    { id: '1', name: 'Energy Saver', description: 'Stay under daily goal for 3 days', icon: 'Leaf', unlocked: true, unlockedAt: subDays(new Date(), 2).toISOString(), xp: 100 },
-    { id: '2', name: 'Night Owl Tamer', description: 'No night alerts for a week', icon: 'Moon', unlocked: true, unlockedAt: subDays(new Date(), 5).toISOString(), xp: 150 },
-    { id: '3', name: 'Power Master', description: 'Reduce peak power by 20%', icon: 'Zap', unlocked: false, progress: 65, xp: 200 },
-    { id: '4', name: 'Budget Guardian', description: 'Hit monthly budget goal', icon: 'Shield', unlocked: false, progress: 68, xp: 250 },
-    { id: '5', name: 'Green Champion', description: 'Achieve efficiency score > 90', icon: 'Award', unlocked: false, progress: 80, xp: 300 },
-    { id: '6', name: 'Streak 30', description: 'Meet daily goal 30 days in a row', icon: 'Flame', unlocked: false, progress: 30, xp: 500 },
+    { id: '1', name: 'Energy Saver', description: 'Stay under daily goal for 3 days', icon: 'Leaf', unlocked: true, unlockedAt: subDays(new Date(), 2).toISOString(), xp: 100, isRead: true },
+    { id: '2', name: 'Night Owl Tamer', description: 'No night alerts for a week', icon: 'Moon', unlocked: true, unlockedAt: subDays(new Date(), 5).toISOString(), xp: 150, isRead: true },
+    { id: '3', name: 'Power Master', description: 'Reduce peak power by 20%', icon: 'Zap', unlocked: false, progress: 65, xp: 200, isRead: false },
+    { id: '4', name: 'Budget Guardian', description: 'Hit monthly budget goal', icon: 'Shield', unlocked: false, progress: 68, xp: 250, isRead: false },
+    { id: '5', name: 'Green Champion', description: 'Achieve efficiency score > 90', icon: 'Award', unlocked: false, progress: 80, xp: 300, isRead: false },
+    { id: '6', name: 'Streak 30', description: 'Meet daily goal 30 days in a row', icon: 'Flame', unlocked: false, progress: 30, xp: 500, isRead: false },
 ];
 
 // ── Settings ─────────────────────────────────────────────────

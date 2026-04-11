@@ -9,15 +9,12 @@ import React from 'react';
 import toast from 'react-hot-toast';
 import { TipToast } from '@/components/ui/TipToast';
 import { useAlertSound } from './useAlertSound';
+import { getSocket, isMockMode } from '@/lib/socket';
 
 /**
- * Hook to subscribe to real-time tips for a specific home via WebSocket
- *
- * Features:
- * - Automatically subscribes to home/{homeId} room
- * - Listens to tip:received events from the server
- * - Updates tipsStore with received tips
- * - Shows toast notification for new tips
+ * Hook to subscribe to real-time tips for a specific home via WebSocket.
+ * Uses static import + synchronous cleanup to avoid orphaned listeners
+ * when the effect re-runs due to dependency changes.
  */
 export function useTipsLiveData(homeId: string | null) {
     const { connected } = useSocket();
@@ -26,55 +23,42 @@ export function useTipsLiveData(homeId: string | null) {
     const { playSound } = useAlertSound();
 
     useEffect(() => {
-        if (!homeId || !connected) {
+        if (!homeId || !connected || isMockMode) {
             return;
         }
 
-        let socket: Awaited<ReturnType<typeof import('@/lib/socket').getSocket>> | null;
+        const socket = getSocket(token || undefined);
+        if (!socket) return;
 
-        const subscribe = async () => {
-            const { getSocket, isMockMode } = await import('@/lib/socket');
+        const room = `home/${homeId}`;
+        socket.emit('subscribe', room);
 
-            if (isMockMode) {
-                console.log('[TipsLiveData] Mock mode - not connecting to live tips');
-                return;
-            }
+        const handleTip = (payload: any) => {
+            const event = payload.payload || payload;
+            if (!event) return;
 
-            socket = getSocket(token || undefined);
-            if (!socket) return;
+            const newTip: Tip = {
+                id: event.tipId || Math.random().toString(36).slice(2),
+                homeId: event.homeId || homeId,
+                iconName: event.iconName || 'Lightbulb',
+                title: event.title || 'Energy Tip',
+                description: event.description || '',
+                categoryTag: event.category || 'General',
+                estimatedSavings: event.metadata?.estimatedSavings || '~3% savings',
+                createdAt: event.timestamp || new Date().toISOString(),
+                generatedAt: event.timestamp || new Date().toISOString(),
+            };
 
-            // Subscribe to home room to catch tips for this home
-            const room = `home/${homeId}`;
-            socket.emit('subscribe', room);
-            console.log(`[TipsLiveData] Subscribed to ${room}`);
+            // Only show toast if this tip is NOT already in the store
+            // (tips loaded from REST API on mount should not produce toasts)
+            const alreadyKnown = useTipsStore.getState().tips.some((t) => t.id === newTip.id);
 
-            const handleTip = (payload: any) => {
-                console.log('[TipsLiveData] Received tip:', payload);
-                const event = payload.payload || payload;
-                if (!event) return;
+            addTip(newTip);
 
-                // Map websocket payload to Tip interface
-                const newTip: Tip = {
-                    id: event.tipId || Math.random().toString(36).slice(2),
-                    homeId: event.homeId || homeId,
-                    iconName: event.iconName || 'Lightbulb',
-                    title: event.title || 'Energy Tip',
-                    description: event.description || '',
-                    categoryTag: event.category || 'General',
-                    estimatedSavings: event.metadata?.estimatedSavings || '~3% savings',
-                    createdAt: event.timestamp || new Date().toISOString(),
-                    generatedAt: event.timestamp || new Date().toISOString(),
-                };
-
-                // Add tip to store (store handles deduping)
-                addTip(newTip);
-
-                // Play notification sound
+            if (!alreadyKnown) {
                 playSound('info').catch((err) =>
                     console.warn('[TipsLiveData] Failed to play tip sound:', err)
                 );
-
-                // Show toast notification using React.createElement (no JSX in .ts files)
                 toast.custom(
                     (t) =>
                         React.createElement(TipToast, {
@@ -86,35 +70,17 @@ export function useTipsLiveData(homeId: string | null) {
                     {
                         duration: 6000,
                         position: 'bottom-right',
-                        style: {
-                            background: 'transparent',
-                            border: 'none',
-                            padding: 0,
-                            boxShadow: 'none',
-                        },
+                        style: { background: 'transparent', border: 'none', padding: 0, boxShadow: 'none' },
                     }
                 );
-            };
-
-            socket.on('tip:received', handleTip);
-
-            return () => {
-                if (!socket) return;
-                socket.off('tip:received', handleTip);
-                socket.emit('unsubscribe', room);
-                console.log(`[TipsLiveData] Unsubscribed from ${room}`);
-            };
+            }
         };
 
-        let cleanup: (() => void) | undefined;
-        subscribe()
-            .then((c) => {
-                cleanup = c;
-            })
-            .catch(console.error);
+        socket.on('tip:received', handleTip);
 
         return () => {
-            if (cleanup) cleanup();
+            socket.off('tip:received', handleTip);
+            socket.emit('unsubscribe', room);
         };
     }, [homeId, connected, addTip, token, playSound]);
 }

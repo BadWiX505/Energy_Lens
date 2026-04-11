@@ -12,6 +12,7 @@ import { EnergyAreaChart } from '@/components/ui/AreaChart';
 import { EnergyBarChart } from '@/components/ui/BarChart';
 import { ConnectionStatus } from '@/components/ui/ConnectionStatus';
 import { DeviceSelector } from '@/components/ui/DeviceSelector';
+import { TipsTicker } from '@/components/ui/TipsTicker';
 import { formatNumber } from '@/lib/utils';
 import type { MonitoringMode, EnergySummary, ComparisonData } from '@/types';
 import { AlertCircle, Loader } from 'lucide-react';
@@ -191,6 +192,9 @@ export default function DashboardPage() {
           <DeviceSelector />
         </div>
       </div>
+
+      {/* ── Tips ticker ─────────────────────────────────────────── */}
+      <TipsTicker />
 
       {/* ── Metric cards ───────────────────────────────────────── */}
       {monitoringMode === 'live' ? (
