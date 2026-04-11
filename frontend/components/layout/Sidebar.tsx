@@ -102,11 +102,11 @@ export function Sidebar({ open, onClose }: SidebarProps) {
                                 className={cn(
                                     'group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150',
                                     active
-                                        ? 'bg-violet-500/15 text-violet-300 shadow-sm'
-                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:text-zinc-100 hover:bg-black/5 dark:bg-white/5'
+                                        ? 'bg-violet-500/15 text-violet-500 dark:text-violet-300 shadow-sm'
+                                        : 'text-zinc-900 dark:text-zinc-100 hover:bg-black/5 dark:bg-white/5 dark:hover:text-zinc-100'
                                 )}
                             >
-                                <Icon className={cn('w-4 h-4', active ? 'text-violet-400' : 'text-zinc-400 dark:text-zinc-500 group-hover:text-zinc-700 dark:text-zinc-300')} />
+                                <Icon className={cn('w-4 h-4', active ? 'dark:text-violet-400 text-violet-500' : 'text-zinc-900 dark:text-zinc-500  dark:text-zinc-300  dark:bg-white/5 dark:hover:text-zinc-100')} />
                                 <span className="flex-1">{label}</span>
                                 {badge && unreadCount > 0 && (
                                     <span className="text-[10px] font-bold bg-red-500 text-white rounded-full min-w-[18px] h-[18px] flex items-center justify-center px-1">

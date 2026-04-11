@@ -24,7 +24,7 @@ export function Navbar({ title, onMenuClick }: NavbarProps) {
                 <div className="flex items-center gap-3">
                     <button
                         onClick={onMenuClick}
-                        className="lg:hidden p-1.5 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-white hover:bg-black/5 dark:bg-white/5 transition-colors"
+                        className="lg:hidden p-1.5 rounded-lg text-zinc-600 dark:text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-100 hover:bg-gray-200 dark:hover:bg-zinc-800 transition-colors"
                     >
                         <Menu className="w-5 h-5" />
                     </button>
@@ -36,7 +36,7 @@ export function Navbar({ title, onMenuClick }: NavbarProps) {
                     {/* Tips */}
                     <button
                         onClick={() => setTipsOpen(true)}
-                        className="relative p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-amber-400 hover:bg-amber-400/10 transition-all"
+                        className="relative p-2 rounded-lg text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/20 transition-colors"
                         title="Energy Tips"
                     >
                         <Lightbulb className="w-5 h-5" />
@@ -45,7 +45,7 @@ export function Navbar({ title, onMenuClick }: NavbarProps) {
                     {/* Alerts */}
                     <a
                         href="/alerts"
-                        className="relative p-2 rounded-lg text-zinc-500 dark:text-zinc-400 hover:text-violet-400 hover:bg-violet-400/10 transition-all"
+                        className="relative p-2 rounded-lg text-violet-600 dark:text-violet-400 hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors"
                         title="Alerts"
                     >
                         <Bell className="w-5 h-5" />
@@ -60,10 +60,10 @@ export function Navbar({ title, onMenuClick }: NavbarProps) {
                     <button
                         onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                         className={cn(
-                            'p-2 rounded-lg transition-all',
+                            'p-2 rounded-lg transition-colors',
                             theme === 'dark'
-                                ? 'text-amber-400 hover:bg-amber-400/10'
-                                : 'text-violet-400 hover:bg-violet-400/10'
+                                ? 'text-amber-400 hover:bg-amber-500/20'
+                                : 'text-violet-600 hover:bg-violet-100'
                         )}
                     >
                         {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}

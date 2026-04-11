@@ -1,6 +1,7 @@
 import { eventBus } from '../../events/eventBus';
 import { emitEnergyMetricsFromTags } from './events/energy.socket';
-import { MQTTDevicePayload } from './socket.types';
+import { emitTipEvent } from './events/tips.socket';
+import { MQTTDevicePayload, TipEventPayload } from './socket.types';
 
 /**
  * Initialize WebSocket-EventBus bridge
@@ -32,8 +33,28 @@ export const initializeSocketBridge = () => {
    * Future: Listen for tip events from domain
    */
   eventBus.on('event:tip:generated', (payload: any) => {
-    console.log('[SocketBridge] Tip event received (stub):', payload);
-    // TODO: Implement emitTipEvent(payload) when tips module emits these events
+    try {
+      if (!payload || !payload.homeId) {
+        console.warn('[SocketBridge] Received tip event without homeId:', payload);
+        return;
+      }
+
+      // Convert domain event to WebSocket event payload
+      const tipPayload: TipEventPayload = {
+        tipId: payload.tipId,
+        homeId: payload.homeId,
+        title: payload.title,
+        description: payload.description,
+        category: payload.categoryTag,
+        timestamp: payload.timestamp || new Date().toISOString(),
+        metadata: payload.estimatedSavings ? { estimatedSavings: payload.estimatedSavings } : undefined,
+      };
+
+      console.log('[SocketBridge] Emitting tip event to home:', payload.homeId);
+      emitTipEvent(tipPayload);
+    } catch (error) {
+      console.error('[SocketBridge] Error processing tip event:', error);
+    }
   });
 
   console.log('[SocketBridge] WebSocket bridge initialized - listening for EventBus events');

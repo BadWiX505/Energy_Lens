@@ -32,7 +32,51 @@ export interface EnergyMetrics {
 
 export interface EnergyHistoryPoint extends EnergyMetrics {
   label?: string; // for grouped charts (e.g. "Mon", "Jan")
+  power_peak?: number;
+  power_min?: number;
+  voltage_avg?: number;
+  current_avg?: number;
   [key: string]: any;
+}
+
+export interface EnergySummary {
+  today: {
+    energy: number;
+    cost: number;
+    peak: number;
+  };
+  thisWeek: {
+    energy: number;
+    cost: number;
+    avgDaily: number;
+  };
+  thisMonth: {
+    energy: number;
+    cost: number;
+    projectedFull: number;
+    daysRemaining: number;
+  };
+  lastMonth: {
+    energy: number;
+    cost: number;
+  };
+  billingCycle: {
+    energy: number;
+    cost: number;
+    projectedEnergy: number;
+    projectedCost: number;
+    avgDailyEnergy: number;
+    avgDailyCost: number;
+    daysElapsed: number;
+    daysRemaining: number;
+    totalDays: number;
+    startDate: string;
+    endDate: string;
+    previousEnergy: number;
+    previousCost: number;
+  };
+  trend: 'up' | 'down' | 'stable';
+  trendPercent: number;
 }
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';
@@ -48,6 +92,19 @@ export interface Alert {
   read: boolean;
   value?: number;
   unit?: string;
+}
+
+export interface Tip {
+  id: string;
+  homeId: string;
+  iconName: string;           // Lucide icon name (e.g., 'Lightbulb', 'Zap')
+  title: string;              // Tip title (max 6 words)
+  description: string;        // Actionable explanation
+  categoryTag: string;        // Category: 'Lighting', 'HVAC', 'Appliances', 'Habits'
+  estimatedSavings: string;   // e.g., '~5% savings'
+  sourceDeviceId?: string;
+  createdAt: string;          // ISO 8601
+  generatedAt: string;        // ISO 8601
 }
 
 export interface Appliance {
@@ -111,12 +168,6 @@ export interface ComparisonData {
   [key: string]: any;
 }
 
-export interface EnergyBreakdown {
-  name: string;
-  value: number;
-  color: string;
-}
-
 export interface EnergyStat {
   label: string;
   value: string | number;
@@ -149,6 +200,16 @@ export interface SocketEnergyEvent {
 
 export interface SocketAlertEvent {
   alert: Alert;
+}
+
+export interface TipEventPayload {
+  tipId: string;
+  homeId: string;
+  title: string;
+  description: string;
+  category: string;
+  timestamp: string;
+  metadata?: Record<string, any>;
 }
 
 // API response wrappers

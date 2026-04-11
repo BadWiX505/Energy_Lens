@@ -29,3 +29,20 @@ export async function writePoint(measurement: string, tags: Record<string, strin
     return false;
   }
 }
+
+/**
+ * Execute an InfluxDB v3 SQL query and return all rows.
+ * Each row is a Record with column names as keys.
+ */
+export async function queryRows(sql: string): Promise<Record<string, any>[]> {
+  const rows: Record<string, any>[] = [];
+  try {
+    const result = client.query(sql, database!);
+    for await (const row of result) {
+      rows.push(row);
+    }
+  } catch (error) {
+    console.error('[InfluxDB] Query error:', error);
+  }
+  return rows;
+}

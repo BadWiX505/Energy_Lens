@@ -11,15 +11,9 @@
 //   3. Adjust endpoint paths in each function below if needed
 // ============================================================
 
-import type { EnergyMetrics, EnergyHistoryPoint, Alert, Appliance, Goal, UserSettings, User, Home, Device } from '@/types';
-import type { MonitoringMode } from '@/types';
+import type { EnergyHistoryPoint, EnergySummary, Alert, Appliance, Goal, UserSettings, User, Home, Device, Tip } from '@/types';
 import { useAuthStore } from '@/store/authStore';
 import {
-    generateLiveMetrics,
-    generateHourlyHistory,
-    generateDailyHistory,
-    generateWeeklyHistory,
-    generateMonthlyHistory,
     MOCK_ALERTS,
     MOCK_APPLIANCES,
     MOCK_GOALS,
@@ -88,52 +82,76 @@ export async function validateMeApi(): Promise<{ user: User }> {
 
 // ── Energy Endpoints ─────────────────────────────────────────
 
-/** GET /energy/realtime — latest single reading */
-export async function getRealtimeEnergy(): Promise<EnergyMetrics> {
-    if (USE_MOCK) return generateLiveMetrics();
-    return apiFetch<EnergyMetrics>('/energy/realtime');
+/** GET /api/energy/history — historical readings grouped by mode for a device */
+export async function getEnergyHistory(
+    deviceId: string,
+    mode: 'hours' | 'days' | 'weeks' | 'months' = 'hours'
+): Promise<EnergyHistoryPoint[]> {
+    const params = new URLSearchParams({ deviceId, mode });
+    const response = await apiFetch<{ data: EnergyHistoryPoint[] }>(`/api/energy/history?${params}`);
+    return response.data || [];
 }
 
-/** GET /energy/history — historical readings based on monitoring mode */
-export async function getEnergyHistory(mode: MonitoringMode = 'hours'): Promise<EnergyHistoryPoint[]> {
-    if (USE_MOCK) {
-        switch (mode) {
-            case 'hours': return generateHourlyHistory(24);
-            case 'days': return generateDailyHistory(30);
-            case 'weeks': return generateWeeklyHistory(12);
-            case 'months': return generateMonthlyHistory(12);
-            default: return generateHourlyHistory(24);
-        }
-    }
-    return apiFetch<EnergyHistoryPoint[]>(`/energy/history?mode=${mode}`);
+/** GET /api/energy/summary — energy summary stats for a device */
+export async function getEnergySummary(deviceId: string): Promise<EnergySummary> {
+    return apiFetch<EnergySummary>(`/api/energy/summary?deviceId=${deviceId}`);
+}
+
+/** GET /api/energy/comparison — today vs yesterday hourly comparison for a device */
+export async function getEnergyComparison(
+    deviceId: string
+): Promise<{ label: string; today: number; yesterday: number }[]> {
+    const response = await apiFetch<{ data: { label: string; today: number; yesterday: number }[] }>(
+        `/api/energy/comparison?deviceId=${deviceId}`
+    );
+    return response.data || [];
 }
 
 // ── Alert Endpoints ──────────────────────────────────────────
 
-/** GET /alerts — list of all alerts */
-export async function getAlerts(): Promise<Alert[]> {
-    if (USE_MOCK) return [...MOCK_ALERTS];
-    return apiFetch<Alert[]>('/alerts');
+/** GET /api/alerts?homeId=... — list of all alerts */
+export async function getAlerts(homeId: string): Promise<Alert[]> {
+    return apiFetch<Alert[]>(`/api/alerts?homeId=${homeId}`);
 }
 
-/** PATCH /alerts/:id/read — mark single alert as read */
+/** POST /api/alerts/:id/read — mark single alert as read */
 export async function markAlertRead(id: string): Promise<void> {
-    if (USE_MOCK) return;
-    await apiFetch(`/alerts/${id}/read`, { method: 'PATCH' });
+    await apiFetch(`/api/alerts/${id}/read`, { method: 'POST' });
 }
 
-/** PATCH /alerts/read-all — mark all alerts as read */
-export async function markAllAlertsRead(): Promise<void> {
-    if (USE_MOCK) return;
-    await apiFetch('/alerts/read-all', { method: 'PATCH' });
+/** DELETE /api/alerts/:id — delete alert permanently */
+export async function deleteAlertFromApi(id: string): Promise<void> {
+    await apiFetch(`/api/alerts/${id}`, { method: 'DELETE' });
+}
+
+/** DELETE /api/alerts?homeId=... — delete ALL alerts for a home */
+export async function deleteAllAlertsFromApi(homeId: string): Promise<void> {
+    await apiFetch(`/api/alerts?homeId=${homeId}`, { method: 'DELETE' });
+}
+
+// ── Tips Endpoints ───────────────────────────────────────────
+
+/** GET /api/tips?homeId=... — list all tips for a home */
+export async function getTips(homeId: string): Promise<Tip[]> {
+    return apiFetch<Tip[]>(`/api/tips?homeId=${homeId}`);
+}
+
+/** DELETE /api/tips/:id — delete a single tip */
+export async function deleteTipFromApi(id: string): Promise<void> {
+    await apiFetch(`/api/tips/${id}`, { method: 'DELETE' });
+}
+
+/** DELETE /api/tips?homeId=... — delete ALL tips for a home */
+export async function deleteAllTipsFromApi(homeId: string): Promise<void> {
+    await apiFetch(`/api/tips?homeId=${homeId}`, { method: 'DELETE' });
 }
 
 // ── Insights Endpoints ───────────────────────────────────────
 
-/** GET /insights — appliance detection (NILM) results */
-export async function getInsights(): Promise<Appliance[]> {
+/** GET /api/insights?deviceId=... — appliance detection (NILM) results for a specific device */
+export async function getInsights(deviceId: string): Promise<Appliance[]> {
     if (USE_MOCK) return MOCK_APPLIANCES;
-    return apiFetch<Appliance[]>('/insights');
+    return apiFetch<Appliance[]>(`/api/insights?deviceId=${encodeURIComponent(deviceId)}`);
 }
 
 // ── Goal Endpoints ───────────────────────────────────────────

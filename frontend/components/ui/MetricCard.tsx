@@ -17,12 +17,12 @@ interface MetricCardProps {
 }
 
 const colorMap = {
-    violet: { bg: 'from-violet-500/15 to-violet-500/5', icon: 'bg-violet-500/15 text-violet-400', border: 'border-violet-500/20', text: 'text-violet-400' },
-    cyan: { bg: 'from-cyan-500/15 to-cyan-500/5', icon: 'bg-cyan-500/15 text-cyan-400', border: 'border-cyan-500/20', text: 'text-cyan-400' },
-    amber: { bg: 'from-amber-500/15 to-amber-500/5', icon: 'bg-amber-500/15 text-amber-400', border: 'border-amber-500/20', text: 'text-amber-400' },
-    emerald: { bg: 'from-emerald-500/15 to-emerald-500/5', icon: 'bg-emerald-500/15 text-emerald-400', border: 'border-emerald-500/20', text: 'text-emerald-400' },
-    rose: { bg: 'from-rose-500/15 to-rose-500/5', icon: 'bg-rose-500/15 text-rose-400', border: 'border-rose-500/20', text: 'text-rose-400' },
-    sky: { bg: 'from-sky-500/15 to-sky-500/5', icon: 'bg-sky-500/15 text-sky-400', border: 'border-sky-500/20', text: 'text-sky-400' },
+    violet: { bg: 'from-violet-500/15 to-violet-500/5 dark:from-violet-500/10 dark:to-violet-500/5', icon: 'bg-violet-500/15 dark:bg-violet-500/10 text-violet-600 dark:text-violet-400', border: 'border-violet-300 dark:border-violet-500/20', text: 'text-violet-600 dark:text-violet-400' },
+    cyan: { bg: 'from-cyan-500/15 to-cyan-500/5 dark:from-cyan-500/10 dark:to-cyan-500/5', icon: 'bg-cyan-500/15 dark:bg-cyan-500/10 text-cyan-600 dark:text-cyan-400', border: 'border-cyan-300 dark:border-cyan-500/20', text: 'text-cyan-600 dark:text-cyan-400' },
+    amber: { bg: 'from-amber-500/15 to-amber-500/5 dark:from-amber-500/10 dark:to-amber-500/5', icon: 'bg-amber-500/15 dark:bg-amber-500/10 text-amber-600 dark:text-amber-400', border: 'border-amber-300 dark:border-amber-500/20', text: 'text-amber-600 dark:text-amber-400' },
+    emerald: { bg: 'from-emerald-500/15 to-emerald-500/5 dark:from-emerald-500/10 dark:to-emerald-500/5', icon: 'bg-emerald-500/15 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400', border: 'border-emerald-300 dark:border-emerald-500/20', text: 'text-emerald-600 dark:text-emerald-400' },
+    rose: { bg: 'from-rose-500/15 to-rose-500/5 dark:from-rose-500/10 dark:to-rose-500/5', icon: 'bg-rose-500/15 dark:bg-rose-500/10 text-rose-600 dark:text-rose-400', border: 'border-rose-300 dark:border-rose-500/20', text: 'text-rose-600 dark:text-rose-400' },
+    sky: { bg: 'from-sky-500/15 to-sky-500/5 dark:from-sky-500/10 dark:to-sky-500/5', icon: 'bg-sky-500/15 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400', border: 'border-sky-300 dark:border-sky-500/20', text: 'text-sky-600 dark:text-sky-400' },
 };
 
 export function MetricCard({
@@ -65,7 +65,7 @@ export function MetricCard({
                             <span className={cn('text-xs font-semibold', c.text)}>{unit}</span>
                         </div>
                     )}
-                    {subtitle && <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-1">{subtitle}</p>}
+                    {subtitle && <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">{subtitle}</p>}
                     {typeof change === 'number' && (
                         <div className={cn(
                             'inline-flex items-center gap-1 mt-2 px-2 py-0.5 rounded-full text-[10px] font-semibold',

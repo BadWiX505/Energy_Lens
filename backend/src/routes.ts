@@ -3,6 +3,10 @@ import authRouter from './modules/auth/auth.routes';
 import homesRouter from './modules/homes/homes.routes';
 import devicesRouter from './modules/devices/devices.routes';
 import preferencesRouter from './modules/preferences/preferences.routes';
+import energyRouter from './modules/energy/energy.routes';
+import alertsRouter from './modules/alerts/alerts.routes';
+import tipsRouter from './modules/tips/tips.routes';
+import insightsRouter from './modules/insights/insights.routes';
 import { authenticateUser } from './modules/auth/auth.middleware';
 
 const router = Router();
@@ -17,7 +21,7 @@ router.use((req: Request, res: Response, next: NextFunction) => {
   if (req.path.startsWith('/auth/signup') || req.path.startsWith('/auth/login')) {
     return next();
   }
-  
+
   authenticateUser(req, res, next);
 });
 
@@ -25,5 +29,9 @@ router.use((req: Request, res: Response, next: NextFunction) => {
 router.use('/homes', homesRouter);
 router.use('/devices', devicesRouter);
 router.use('/preferences', preferencesRouter);
+router.use('/energy', energyRouter);
+router.use('/alerts', alertsRouter);
+router.use('/tips', tipsRouter);
+router.use('/insights', insightsRouter);
 
 export default router;

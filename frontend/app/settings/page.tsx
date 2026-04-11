@@ -12,27 +12,27 @@ import {
 import { cn } from '@/lib/utils';
 import toast from 'react-hot-toast';
 
-// Color warning helper for threshold fields
+// Color warning helper for threshold fields - updated for better contrast
 function getThresholdColor(value: number, low: number, high: number): string {
-    if (value >= high) return 'border-red-500/50 focus:ring-red-500 bg-red-500/5';
-    if (value >= low) return 'border-amber-500/50 focus:ring-amber-500 bg-amber-500/5';
-    return 'border-black/10 dark:border-white/10 focus:ring-violet-500';
+    if (value >= high) return 'border-red-300 dark:border-red-500/50 focus:border-red-500 focus:ring-red-500/20 bg-red-50 dark:bg-red-500/10 text-red-900 dark:text-red-100';
+    if (value >= low) return 'border-amber-300 dark:border-amber-500/50 focus:border-amber-500 focus:ring-amber-500/20 bg-amber-50 dark:bg-amber-500/10 text-amber-900 dark:text-amber-100';
+    return 'border-zinc-300 dark:border-zinc-700 focus:ring-violet-500/20 focus:border-violet-500 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100';
 }
 
 function ThresholdHint({ value, low, high, unit }: { value: number; low: number; high: number; unit: string }) {
     if (value >= high) return (
-        <p className="text-[10px] text-red-400 mt-1 flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3" /> Very high — may cause critical alerts
+        <p className="text-xs text-red-600 dark:text-red-400 mt-1.5 flex items-center gap-1 font-medium">
+            <AlertTriangle className="w-3.5 h-3.5" /> Very high — may cause critical alerts
         </p>
     );
     if (value >= low) return (
-        <p className="text-[10px] text-amber-400 mt-1 flex items-center gap-1">
-            <AlertTriangle className="w-3 h-3" /> Moderate — warnings will trigger at this level
+        <p className="text-xs text-amber-600 dark:text-amber-400 mt-1.5 flex items-center gap-1 font-medium">
+            <AlertTriangle className="w-3.5 h-3.5" /> Moderate — warnings will trigger at this level
         </p>
     );
     return (
-        <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1 flex items-center gap-1">
-            <Info className="w-3 h-3" /> Conservative threshold — good for energy saving
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1.5 flex items-center gap-1">
+            <Info className="w-3.5 h-3.5" /> Conservative threshold — good for energy saving
         </p>
     );
 }
@@ -124,32 +124,32 @@ export default function SettingsPage() {
         <div className="space-y-6 pb-8 max-w-3xl">
             {/* Header */}
             <div>
-                <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
-                    <Settings className="w-5 h-5 text-violet-400" />
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
+                    <Settings className="w-6 h-6 text-violet-500" />
                     Settings
                 </h2>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                     Per-home energy preferences (loaded from your backend; saving creates a new preference record).
                 </p>
             </div>
 
             {prefError && !prefLoading && (
-                <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-3 text-xs text-amber-800 dark:text-amber-200">
+                <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800 dark:border-red-900/50 dark:bg-red-900/20 dark:text-red-200 font-medium">
                     {prefError}
                 </div>
             )}
 
-            <form onSubmit={handleSave} className="space-y-5">
+            <form onSubmit={handleSave} className="space-y-6">
                 {prefLoading && (
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
-                        <span className="inline-block h-3 w-3 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
+                    <p className="text-sm text-zinc-500 dark:text-zinc-400 flex items-center gap-2">
+                        <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-violet-500 border-t-transparent" />
                         Loading preferences for selected home…
                     </p>
                 )}
 
                 {/* Thresholds */}
                 <Section title="Power Thresholds" description="Set warning levels for power monitoring">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <FormField label="Max Power Threshold (W)" hint={
                             <ThresholdHint value={form.max_power_threshold} low={2000} high={3500} unit="W" />
                         }>
@@ -160,7 +160,7 @@ export default function SettingsPage() {
                                 value={form.max_power_threshold}
                                 {...field('max_power_threshold')}
                                 className={cn(
-                                    'w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border focus:outline-none focus:ring-1 transition-colors',
+                                    'w-full rounded-lg px-3 py-2 text-sm border focus:outline-none focus:ring-2 transition-colors',
                                     getThresholdColor(form.max_power_threshold, 2000, 3500)
                                 )}
                             />
@@ -176,7 +176,7 @@ export default function SettingsPage() {
                                 value={form.night_threshold}
                                 {...field('night_threshold')}
                                 className={cn(
-                                    'w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border focus:outline-none focus:ring-1 transition-colors',
+                                    'w-full rounded-lg px-3 py-2 text-sm border focus:outline-none focus:ring-2 transition-colors',
                                     getThresholdColor(form.night_threshold, 300, 800)
                                 )}
                             />
@@ -186,7 +186,7 @@ export default function SettingsPage() {
 
                 {/* Pricing */}
                 <Section title="Pricing & Billing" description="Configure electricity costs and billing period">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
                         <FormField label="Price per kWh">
                             <input
                                 type="number"
@@ -194,7 +194,7 @@ export default function SettingsPage() {
                                 min={0}
                                 value={form.price_per_kwh}
                                 {...field('price_per_kwh')}
-                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-colors"
                             />
                         </FormField>
                         <FormField label="Currency">
@@ -203,8 +203,8 @@ export default function SettingsPage() {
                                 maxLength={5}
                                 value={form.currency}
                                 {...field('currency')}
-                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
-                                placeholder="USD"
+                                className="w-full rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-colors"
+                                placeholder="MAD"
                             />
                         </FormField>
                         <FormField label="Billing Start Day (1–31)">
@@ -214,7 +214,7 @@ export default function SettingsPage() {
                                 max={31}
                                 value={form.billing_start}
                                 {...field('billing_start')}
-                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 focus:outline-none focus:ring-1 focus:ring-violet-500"
+                                className="w-full rounded-lg px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 bg-white dark:bg-zinc-950 border border-zinc-300 dark:border-zinc-700 focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-colors"
                             />
                         </FormField>
                     </div>
@@ -222,22 +222,21 @@ export default function SettingsPage() {
 
                 {/* Notifications */}
                 <Section title="Notifications" description="Control alert and notification behaviour">
-                    <label className="flex items-center justify-between p-3 rounded-xl bg-zinc-200/50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 cursor-pointer hover:bg-zinc-100 dark:bg-zinc-800 transition-colors">
+                    <label className="flex items-center justify-between p-4 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 border border-zinc-200 dark:border-zinc-700/50 cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors">
                         <div>
-                            <p className="text-sm text-zinc-900 dark:text-zinc-100">Enable Notifications</p>
-                            <p className="text-[11px] text-zinc-400 dark:text-zinc-500">Real-time alerts and anomaly warnings</p>
+                            <p className="text-sm font-medium text-zinc-900 dark:text-zinc-100">Enable Notifications</p>
+                            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Real-time alerts and anomaly warnings</p>
                         </div>
                         <div
                             onClick={() => setForm((f) => ({ ...f, enable_notifications: !f.enable_notifications }))}
                             className={cn(
-                                'relative w-10 h-5.5 rounded-full transition-colors cursor-pointer flex-shrink-0',
-                                form.enable_notifications ? 'bg-violet-600' : 'bg-zinc-700'
+                                'relative w-11 h-6 rounded-full transition-colors cursor-pointer flex-shrink-0',
+                                form.enable_notifications ? 'bg-violet-600' : 'bg-zinc-300 dark:bg-zinc-600'
                             )}
-                            style={{ height: '22px', width: '40px' }}
                         >
                             <span className={cn(
-                                'absolute top-0.5 w-4 h-4 rounded-full bg-white shadow transition-transform',
-                                form.enable_notifications ? 'translate-x-5' : 'translate-x-0.5'
+                                'absolute top-1 w-4 h-4 rounded-full bg-white shadow transition-transform',
+                                form.enable_notifications ? 'translate-x-6' : 'translate-x-1'
                             )} />
                         </div>
                     </label>
@@ -245,7 +244,7 @@ export default function SettingsPage() {
 
                 {/* Preference record metadata */}
                 <Section title="Preference record" description="Timestamps from the backend preference row">
-                    <div className="grid sm:grid-cols-2 gap-4">
+                    <div className="grid sm:grid-cols-2 gap-5">
                         <FormField label="Created / last loaded">
                             <input
                                 type="text"
@@ -261,31 +260,33 @@ export default function SettingsPage() {
                                               minute: '2-digit',
                                           })
                                 }
-                                className="w-full rounded-xl px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-200/50 dark:bg-zinc-800/50 border border-black/5 dark:border-white/5 cursor-not-allowed"
+                                className="w-full rounded-lg px-3 py-2 text-sm text-zinc-500 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 cursor-not-allowed"
                             />
                         </FormField>
                     </div>
                 </Section>
 
                 {/* Save */}
-                <div className="flex flex-col items-end gap-1">
+                <div className="flex flex-col items-end gap-2 pt-2">
                     <button
                         type="submit"
                         disabled={saving || prefLoading || !selectedHomeId || homes.length === 0}
-                        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-60 text-sm text-white font-semibold transition-all shadow-lg shadow-violet-500/20"
+                        className="inline-flex items-center gap-2 px-6 py-2.5 rounded-lg bg-violet-600 hover:bg-violet-500 disabled:opacity-60 disabled:hover:bg-violet-600 text-sm text-white font-medium transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 dark:focus:ring-offset-zinc-950"
                     >
                         <Save className="w-4 h-4" />
                         {saving ? 'Saving…' : 'Save preferences'}
                     </button>
                     {!selectedHomeId && homes.length > 0 && (
-                        <p className="text-[10px] text-zinc-500">Choose a home in the list below or the sidebar.</p>
+                        <p className="text-xs text-zinc-500">Choose a home in the list below or the sidebar.</p>
                     )}
                 </div>
             </form>
 
+            <hr className="my-8 border-zinc-200 dark:border-zinc-800" />
+
             {/* Theme */}
             <Section title="Appearance" description="Choose your preferred color theme">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-3 gap-4">
                     {([
                         { value: 'dark', label: 'Dark', icon: Moon },
                         { value: 'light', label: 'Light', icon: Sun },
@@ -297,13 +298,13 @@ export default function SettingsPage() {
                             className={cn(
                                 'flex flex-col items-center gap-2 p-4 rounded-xl border transition-all',
                                 theme === value
-                                    ? 'border-violet-500/50 bg-violet-500/10 text-violet-300'
-                                    : 'border-black/5 dark:border-white/5 bg-zinc-200/50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 hover:border-black/10 dark:border-white/10 hover:text-zinc-800 dark:text-zinc-200'
+                                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300 ring-1 ring-violet-500'
+                                    : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/80'
                             )}
                         >
                             <Icon className="w-5 h-5" />
-                            <span className="text-xs font-medium">{label}</span>
-                            {theme === value && <Check className="w-3 h-3" />}
+                            <span className="text-sm font-medium">{label}</span>
+                            {theme === value && <Check className="w-4 h-4 mt-1" />}
                         </button>
                     ))}
                 </div>
@@ -311,28 +312,28 @@ export default function SettingsPage() {
 
             {/* Homes */}
             <Section title="Homes" description="Manage your monitored properties">
-                <div className="space-y-2">
+                <div className="space-y-3">
                     {homes.map((home) => (
                         <div
                             key={home.id}
                             onClick={() => selectHome(home.id)}
                             className={cn(
-                                'flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all',
+                                'flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-all',
                                 home.id === selectedHomeId
-                                    ? 'border-violet-500/30 bg-violet-500/5 text-zinc-900 dark:text-zinc-100'
-                                    : 'border-black/5 dark:border-white/5 bg-zinc-200/50 dark:bg-zinc-800/50 text-zinc-500 dark:text-zinc-400 hover:border-black/10 dark:border-white/10 hover:text-zinc-800 dark:text-zinc-200'
+                                    ? 'border-violet-500 bg-violet-50 dark:bg-violet-500/10 text-violet-900 dark:text-violet-100 ring-1 ring-violet-500'
+                                    : 'border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 text-zinc-600 dark:text-zinc-400 hover:border-zinc-300 dark:hover:border-zinc-700 hover:bg-zinc-50 dark:hover:bg-zinc-800/80'
                             )}
                         >
-                            <HomeIcon className="w-4 h-4 flex-shrink-0" />
+                            <HomeIcon className={cn("w-5 h-5 flex-shrink-0", home.id === selectedHomeId ? "text-violet-600 dark:text-violet-400" : "")} />
                             <div className="flex-1 min-w-0">
-                                <p className="text-sm font-medium truncate">{home.name}</p>
-                                <p className="text-[11px] opacity-60 truncate">{home.location}</p>
+                                <p className="text-sm font-semibold truncate text-zinc-900 dark:text-zinc-100">{home.name}</p>
+                                <p className="text-xs text-zinc-500 dark:text-zinc-400 truncate mt-0.5">{home.location}</p>
                             </div>
-                            {home.id === selectedHomeId && <Check className="w-4 h-4 text-violet-400 flex-shrink-0" />}
+                            {home.id === selectedHomeId && <Check className="w-5 h-5 text-violet-600 dark:text-violet-400 flex-shrink-0" />}
                         </div>
                     ))}
                     {homes.length === 0 && (
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                        <p className="text-sm text-zinc-500 dark:text-zinc-400 p-4 border border-dashed border-zinc-300 dark:border-zinc-700 rounded-xl text-center">
                             No homes yet. Add homes from the Homes & Devices page.
                         </p>
                     )}
@@ -346,12 +347,12 @@ export default function SettingsPage() {
 
 function Section({ title, description, children }: { title: string; description?: string; children: React.ReactNode }) {
     return (
-        <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-900/70 overflow-hidden">
-            <div className="px-5 py-3.5 border-b border-black/5 dark:border-white/5 bg-zinc-100/50 dark:bg-zinc-900/50">
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
-                {description && <p className="text-[11px] text-zinc-400 dark:text-zinc-500 mt-0.5">{description}</p>}
+        <div className="rounded-xl border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900 shadow-sm overflow-hidden">
+            <div className="px-6 py-4 border-b border-zinc-100 dark:border-zinc-800/80">
+                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">{title}</h3>
+                {description && <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">{description}</p>}
             </div>
-            <div className="p-5">{children}</div>
+            <div className="p-6">{children}</div>
         </div>
     );
 }
@@ -359,7 +360,7 @@ function Section({ title, description, children }: { title: string; description?
 function FormField({ label, children, hint }: { label: string; children: React.ReactNode; hint?: React.ReactNode }) {
     return (
         <div>
-            <label className="text-[11px] text-zinc-500 dark:text-zinc-400 mb-1 block">{label}</label>
+            <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1.5 block">{label}</label>
             {children}
             {hint}
         </div>

@@ -13,7 +13,6 @@ import type {
     Achievement,
     UserSettings,
     ComparisonData,
-    EnergyBreakdown,
 } from '@/types';
 
 // ── Helpers ─────────────────────────────────────────────────
@@ -134,17 +133,6 @@ export function generateComparisonData(): ComparisonData[] {
         yesterday: randBetween(0.5, 3.5),
     }));
 }
-
-// ── Breakdown ────────────────────────────────────────────────
-
-export const ENERGY_BREAKDOWN: EnergyBreakdown[] = [
-    { name: 'HVAC', value: 35, color: '#6366f1' },
-    { name: 'Water Heater', value: 18, color: '#f59e0b' },
-    { name: 'Lighting', value: 12, color: '#10b981' },
-    { name: 'Kitchen', value: 15, color: '#f43f5e' },
-    { name: 'Electronics', value: 10, color: '#3b82f6' },
-    { name: 'Other', value: 10, color: '#94a3b8' },
-];
 
 // ── Alerts ───────────────────────────────────────────────────
 

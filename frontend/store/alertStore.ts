@@ -12,6 +12,7 @@ interface AlertActions {
     addAlert: (alert: Alert) => void;
     markRead: (id: string) => void;
     markAllRead: () => void;
+    clearAlerts: () => void;
 }
 
 export const useAlertStore = create<AlertState & AlertActions>()(
@@ -43,6 +44,12 @@ export const useAlertStore = create<AlertState & AlertActions>()(
         markAllRead: () =>
             set((s) => {
                 s.alerts.forEach((a) => (a.read = true));
+                s.unreadCount = 0;
+            }),
+
+        clearAlerts: () =>
+            set((s) => {
+                s.alerts = [];
                 s.unreadCount = 0;
             }),
     }))

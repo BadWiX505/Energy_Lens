@@ -191,7 +191,7 @@ export default function GoalsPage() {
                             return (
                                 <div key={goal.id} className={cn(
                                     'rounded-2xl border p-4 transition-all',
-                                    done ? 'border-emerald-500/20 bg-emerald-500/5' : 'border-black/5 dark:border-white/5 bg-zinc-900/80'
+                                    done ? 'border-emerald-500/20 bg-emerald-500/5' : ' bg-white  border-gray-200 shadow-sm rounded-xl   dark:border-black/5 dark:border-white/5 dark:bg-zinc-900/80'
                                 )}>
                                     <div className="flex items-start justify-between mb-3">
                                         <div>
@@ -237,22 +237,22 @@ export default function GoalsPage() {
                                     'rounded-2xl border p-4 text-center transition-all',
                                     ach.unlocked
                                         ? 'border-amber-500/20 bg-gradient-to-br from-amber-500/10 to-orange-500/5'
-                                        : 'border-black/5 dark:border-white/5 bg-zinc-100/50 dark:bg-zinc-900/50 opacity-60'
+                                        : 'bg-gray-50 border border-gray-200 dark:border-black/5 dark:border-white/5 dark:bg-zinc-100/50 dark:bg-zinc-900/50 opacity-60'
                                 )}>
                                     <div className={cn(
                                         'w-12 h-12 rounded-2xl mx-auto mb-2 flex items-center justify-center',
                                         ach.unlocked ? 'bg-amber-500/20' : 'bg-zinc-100 dark:bg-zinc-800'
                                     )}>
                                         {ach.unlocked
-                                            ? <Icon className="w-6 h-6 text-amber-400" />
-                                            : <Lock className="w-5 h-5 text-zinc-600" />
+                                            ? <Icon className="w-6 h-6 text-amber-500 dark:text-amber-400" />
+                                            : <Lock className="w-5 h-5 text-gray-400 dark:text-zinc-600" />
                                         }
                                     </div>
                                     <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-200">{ach.name}</p>
                                     <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-0.5 leading-snug">{ach.description}</p>
                                     <div className={cn(
                                         'mt-2 text-[10px] font-bold px-2 py-0.5 rounded-full inline-block',
-                                        ach.unlocked ? 'bg-amber-500/20 text-amber-400' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500'
+                                        ach.unlocked ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-400 dark:text-zinc-500'
                                     )}>
                                         +{ach.xp} XP
                                     </div>
@@ -275,11 +275,11 @@ export default function GoalsPage() {
 
                     <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-900/20 to-indigo-900/10 p-5">
                         <div className="flex items-center gap-2 mb-1">
-                            <Zap className="w-4 h-4 text-violet-400" />
-                            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Total XP</p>
+                            <Zap className="w-4 h-4 dark:text-violet-400 text-purple-700" />
+                            <p className="text-sm font-semibold text-purple-700  dark:text-zinc-100">Total XP</p>
                         </div>
-                        <p className="text-4xl font-black text-violet-300">{totalXp}</p>
-                        <div className="mt-3 text-[11px] text-zinc-500 dark:text-zinc-400 space-y-1">
+                        <p className="text-4xl text-purple-600 font-black dark:text-violet-300">{totalXp}</p>
+                        <div className="mt-3 text-[11px] text-purple-800 dark:text-zinc-500 dark:text-zinc-400 space-y-1">
                             <p>✓ {achievements.filter(a => a.unlocked).length} achievements unlocked</p>
                             <p>⬜ {achievements.filter(a => !a.unlocked).length} achievements remaining</p>
                         </div>

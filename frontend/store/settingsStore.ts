@@ -8,11 +8,13 @@ interface SettingsState {
     settings: UserSettings;
     homes: Home[];
     selectedHomeId: string;
+    isHomesLoaded: boolean;
 }
 
 interface SettingsActions {
     updateSettings: (partial: Partial<UserSettings>) => void;
     setHomes: (homes: Home[]) => void;
+    setHomesLoaded: (isLoaded: boolean) => void;
     selectHome: (id: string) => void;
     addHome: (home: Home) => void;
     updateHome: (id: string, patch: Partial<Omit<Home, 'id'>>) => void;
@@ -29,6 +31,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
             settings: DEFAULT_SETTINGS,
             homes: [],
             selectedHomeId: '',
+            isHomesLoaded: false,
 
             updateSettings: (partial) =>
                 set((s) => {
@@ -46,6 +49,11 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
                     if (!s.selectedHomeId || !homes.some((h) => h.id === s.selectedHomeId)) {
                         s.selectedHomeId = homes.length > 0 ? homes[0].id : '';
                     }
+                }),
+
+            setHomesLoaded: (isLoaded) =>
+                set((s) => {
+                    s.isHomesLoaded = isLoaded;
                 }),
 
             selectHome: (id) =>
@@ -122,6 +130,7 @@ export const useSettingsStore = create<SettingsState & SettingsActions>()(
                     ...currentState,
                     ...p,
                     homes: currentState.homes,
+                    isHomesLoaded: currentState.isHomesLoaded,
                 };
             },
         }

@@ -2,21 +2,44 @@
 
 import { useEffect, useState } from 'react';
 import { getInsights } from '@/lib/api';
+import { useEnergyStore } from '@/store/energyStore';
 import type { Appliance } from '@/types';
-import { MOCK_APPLIANCES } from '@/lib/mockData';
 import * as LucideIcons from 'lucide-react';
-import { Cpu, Leaf, type LucideIcon } from 'lucide-react';
+import { Cpu, Leaf, Loader2, MonitorSpeaker, type LucideIcon } from 'lucide-react';
 import { ChartCard } from '@/components/ui/ChartCard';
 import { EnergyPieChart } from '@/components/ui/PieChart';
 import { cn, formatNumber } from '@/lib/utils';
 
 export default function InsightsPage() {
-    const [appliances, setAppliances] = useState<Appliance[]>(MOCK_APPLIANCES);
-    const [loading, setLoading] = useState(true);
+    const selectedDeviceId = useEnergyStore((s) => s.selectedDeviceId);
+    const [appliances, setAppliances] = useState<Appliance[]>([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        getInsights().then(setAppliances).finally(() => setLoading(false));
-    }, []);
+        if (!selectedDeviceId) {
+            setAppliances([]);
+            return;
+        }
+        setLoading(true);
+        getInsights(selectedDeviceId).then(setAppliances).finally(() => setLoading(false));
+    }, [selectedDeviceId]);
+
+    if (!selectedDeviceId) {
+        return (
+            <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-3 text-center">
+                <MonitorSpeaker className="h-10 w-10 text-zinc-300 dark:text-zinc-600" />
+                <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Select a device to view appliance insights</p>
+            </div>
+        );
+    }
+
+    if (loading) {
+        return (
+            <div className="flex h-[60vh] w-full items-center justify-center">
+                <Loader2 className="h-8 w-8 animate-spin text-zinc-500" />
+            </div>
+        );
+    }
 
     const totalKwh = appliances.reduce((s, a) => s + a.dailyKwh, 0);
 
@@ -43,9 +66,8 @@ export default function InsightsPage() {
                     { label: 'Devices Detected', value: appliances.length, unit: '' },
                     { label: 'Daily Total', value: totalKwh.toFixed(1), unit: 'kWh' },
                     { label: 'Est. Monthly', value: (totalKwh * 30).toFixed(0), unit: 'kWh' },
-                    { label: 'Est. Monthly Cost', value: `$${(totalKwh * 30 * 0.15).toFixed(0)}`, unit: '' },
                 ].map((s) => (
-                    <div key={s.label} className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-900/80 p-4">
+                    <div key={s.label} className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-zinc-900/80 p-4">
                         <p className="text-[10px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{s.label}</p>
                         <p className="text-xl font-bold text-zinc-900 dark:text-zinc-100 mt-1">{s.value} <span className="text-sm text-zinc-500 dark:text-zinc-400">{s.unit}</span></p>
                     </div>
@@ -62,7 +84,7 @@ export default function InsightsPage() {
                             return (
                                 <div
                                     key={appliance.id}
-                                    className="group rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-900/80 p-4 hover:border-black/10 dark:border-white/10 hover:bg-white dark:bg-zinc-900 transition-all duration-200"
+                                    className="group rounded-2xl border border-black/5 dark:border-white/5 bg-white p-4 hover:border-black/10 dark:border-white/10  dark:bg-zinc-900 transition-all duration-200"
                                 >
                                     <div className="flex items-start justify-between mb-3">
                                         <div className="flex items-center gap-3">
@@ -74,7 +96,6 @@ export default function InsightsPage() {
                                             </div>
                                             <div>
                                                 <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{appliance.name}</p>
-                                                <p className="text-[10px] text-zinc-400 dark:text-zinc-500">{appliance.watts}W rated</p>
                                             </div>
                                         </div>
                                         <span
@@ -88,8 +109,8 @@ export default function InsightsPage() {
                                     {/* Stats row */}
                                     <div className="grid grid-cols-3 gap-2 pt-3 border-t border-black/5 dark:border-white/5">
                                         {[
-                                            { label: 'Daily Use', value: `${appliance.dailyHours}h` },
-                                            { label: 'Daily kWh', value: `${appliance.dailyKwh}` },
+                                            { label: 'Today Use', value: `${appliance.dailyHours}h` },
+                                            { label: 'Today kWh', value: `${appliance.dailyKwh}` },
                                             { label: 'Monthly', value: `${(appliance.dailyKwh * 30).toFixed(0)} kWh` },
                                         ].map((s) => (
                                             <div key={s.label} className="text-center">

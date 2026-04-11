@@ -57,21 +57,8 @@ model Device {
   createdAt          DateTime            @default(now()) @map("created_at")
 
   home               Home?               @relation(fields: [homeId], references: [id], onDelete: SetNull)
-  detectedAppliances DetectedAppliance[]
 
   @@map("devices")
-}
-
-model DetectedAppliance {
-  id             String    @id @default(uuid()) @db.Uuid
-  deviceId       String    @map("device_id") @db.Uuid
-  applianceName  String?   @map("appliance_name")
-  estimatedPower Float?    @map("estimated_power")
-  detectedAt     DateTime? @map("detected_at")
-
-  device         Device    @relation(fields: [deviceId], references: [id], onDelete: Cascade)
-
-  @@map("detected_appliances")
 }
 
 // =====================
@@ -99,8 +86,10 @@ model Preference {
 model Alert {
   id        String   @id @default(uuid()) @db.Uuid
   homeId    String   @map("home_id") @db.Uuid
-  type      String?
+  type      String?  // 'info' | 'warning' | 'critical'
+  ruleType  String?  @map("rule_type") // 'overvoltage' | 'maxPower' | etc.
   message   String?
+  metadata  Json?    // JSON field for rule-specific context (power, threshold, etc.)
   isRead    Boolean? @default(false) @map("is_read")
   createdAt DateTime @default(now()) @map("created_at")
 
@@ -167,12 +156,22 @@ model UserAchievement {
 // TIPS
 // =====================
 model Tip {
-  id        String   @id @default(uuid()) @db.Uuid
-  homeId    String   @map("home_id") @db.Uuid
-  message   String?
-  createdAt DateTime @default(now()) @map("created_at")
+  id                String   @id @default(uuid()) @db.Uuid
+  homeId            String   @map("home_id") @db.Uuid
+  iconName          String?  @map("icon_name")           // Lucide icon name (e.g., 'Lightbulb', 'Zap')
+  title             String?                              // Tip title (max 6 words)
+  description       String?                              // Actionable explanation (max 2 sentences)
+  categoryTag       String?  @map("category_tag")        // Category: 'Lighting', 'HVAC', 'Appliances', 'Habits'
+  estimatedSavings String?  @map("estimated_savings")   // e.g., '~5% savings'
+  sourceDeviceId    String?  @map("source_device_id") @db.Uuid // Optional: which device triggered this tip
+  metadata          Json?                                // Extra AI response context or debugging info
+  createdAt         DateTime @default(now()) @map("created_at")
+  generatedAt       DateTime @default(now()) @map("generated_at") // When AI generated this tip
 
-  home      Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
+  home              Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
 
+  // Indexes for common queries: list by home (sorted by generated date)
+  @@index([homeId, generatedAt])
+  @@index([homeId, createdAt])
   @@map("tips")
 }

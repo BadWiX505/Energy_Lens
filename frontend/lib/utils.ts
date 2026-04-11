@@ -72,6 +72,98 @@ export function progressColor(pct: number, lowerIsBetter = true): string {
 /** Severity → color map */
 export const severityColors = {
     info: { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', dot: 'bg-blue-400' },
-    warning: { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', dot: 'bg-amber-400' },
+    warning: { bg: 'bg-amber-50 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/30', text: 'text-amber-700 dark:text-amber-400', dot: 'bg-amber-400' },
     critical: { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400', dot: 'bg-red-400' },
 } as const;
+
+// ============================================================
+// Light/Dark Mode Color Utilities
+// ============================================================
+
+/**
+ * Get severity-based color classes with light/dark mode support
+ * Returns classes for background, border, text (light), text (dark), and hover states
+ */
+export function getAlertColorClasses(severity: 'info' | 'warning' | 'critical') {
+    const colorMap = {
+        info: {
+            bgLight: 'bg-blue-50',
+            bgDark: 'dark:bg-blue-950/20',
+            borderLight: 'border-blue-200',
+            borderDark: 'dark:border-blue-900/50',
+            textLight: 'text-blue-900',
+            textDark: 'dark:text-blue-200',
+            iconLight: 'text-blue-600',
+            iconDark: 'dark:text-blue-400',
+            hoverBgLight: 'hover:bg-blue-100',
+            hoverBgDark: 'dark:hover:bg-blue-900/40',
+        },
+        warning: {
+            bgLight: 'bg-amber-50',
+            bgDark: 'dark:bg-amber-950/20',
+            borderLight: 'border-amber-200',
+            borderDark: 'dark:border-amber-900/50',
+            textLight: 'text-amber-900',
+            textDark: 'dark:text-amber-200',
+            iconLight: 'text-amber-600',
+            iconDark: 'dark:text-amber-400',
+            hoverBgLight: 'hover:bg-amber-100',
+            hoverBgDark: 'dark:hover:bg-amber-900/40',
+        },
+        critical: {
+            bgLight: 'bg-red-50',
+            bgDark: 'dark:bg-red-950/20',
+            borderLight: 'border-red-200',
+            borderDark: 'dark:border-red-900/50',
+            textLight: 'text-red-900',
+            textDark: 'dark:text-red-200',
+            iconLight: 'text-red-600',
+            iconDark: 'dark:text-red-400',
+            hoverBgLight: 'hover:bg-red-100',
+            hoverBgDark: 'dark:hover:bg-red-900/40',
+        },
+    };
+
+    const colors = colorMap[severity];
+    return {
+        bg: cn(colors.bgLight, colors.bgDark),
+        border: cn(colors.borderLight, colors.borderDark),
+        text: cn(colors.textLight, colors.textDark),
+        icon: cn(colors.iconLight, colors.iconDark),
+        hoverBg: cn(colors.hoverBgLight, colors.hoverBgDark),
+    };
+}
+
+/**
+ * Get card/component styling with light/dark mode support
+ */
+export function getComponentColors() {
+    return {
+        cardBg: 'bg-white dark:bg-zinc-900',
+        cardBorder: 'border-gray-200 dark:border-zinc-800',
+        cardText: 'text-zinc-900 dark:text-zinc-100',
+        cardSubtext: 'text-zinc-600 dark:text-zinc-400',
+        hoverBg: 'hover:bg-gray-50 dark:hover:bg-zinc-800/50',
+        hoverBorder: 'border-gray-300 dark:border-zinc-700',
+    };
+}
+
+/**
+ * Get chart colors with light/dark mode support
+ */
+export function getChartColors(mode: 'light' | 'dark' = 'dark') {
+    if (mode === 'light') {
+        return {
+            gridColor: '#d1d5db', // gray-300
+            textColor: '#4b5563', // gray-700
+            tooltipBg: '#ffffff',
+            tooltipText: '#000000',
+        };
+    }
+    return {
+        gridColor: '#3f4655', // gray-700 (dark)
+        textColor: '#d1d5db', // gray-300
+        tooltipBg: '#18212f', // zinc-800
+        tooltipText: '#f1f5f9', // slate-100
+    };
+}

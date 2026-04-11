@@ -1,8 +1,10 @@
 'use client';
 
+import { useTheme } from 'next-themes';
 import {
     PieChart as RePieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend,
 } from 'recharts';
+import { getChartColors } from '@/lib/utils';
 
 interface PieEntry {
     name: string;
@@ -17,30 +19,38 @@ interface EnergyPieChartProps {
     outerRadius?: number;
 }
 
-const CustomTooltip = ({ active, payload }: any) => {
+const CustomTooltip = ({ active, payload, chartColors }: any) => {
     if (!active || !payload?.length) return null;
     const p = payload[0];
+    const isDark = chartColors?.isDark ?? true;
     return (
-        <div className="bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-xl shadow-xl px-3 py-2 text-xs">
+        <div style={{
+            backgroundColor: chartColors?.tooltipBg || (isDark ? '#18212f' : '#ffffff'),
+            borderColor: isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
+            color: chartColors?.tooltipText || (isDark ? '#f1f5f9' : '#000000'),
+        }} className="border rounded-xl shadow-xl px-3 py-2 text-xs">
             <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full" style={{ background: p.payload.color }} />
-                <span className="text-zinc-700 dark:text-zinc-300">{p.name}</span>
-                <span className="text-white font-bold ml-2">{p.value}%</span>
+                <span>{p.name}</span>
+                <span className="font-bold ml-2">{p.value}%</span>
             </div>
         </div>
     );
 };
 
-const CustomLegend = ({ payload }: any) => (
-    <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 pt-3">
-        {payload.map((entry: any) => (
-            <div key={entry.value} className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: entry.color }} />
-                <span className="text-[11px] text-zinc-500 dark:text-zinc-400">{entry.value}</span>
-            </div>
-        ))}
-    </div>
-);
+const CustomLegend = ({ payload, chartColors }: any) => {
+    const isDark = chartColors?.isDark ?? true;
+    return (
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5 pt-3">
+            {payload.map((entry: any) => (
+                <div key={entry.value} className="flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: entry.color }} />
+                    <span style={{ color: chartColors?.textColor || (isDark ? '#a1a1aa' : '#6b7280') }} className="text-[11px]">{entry.value}</span>
+                </div>
+            ))}
+        </div>
+    );
+};
 
 export function EnergyPieChart({
     data,
@@ -48,6 +58,10 @@ export function EnergyPieChart({
     innerRadius = 55,
     outerRadius = 90,
 }: EnergyPieChartProps) {
+    const { theme } = useTheme();
+    const isDark = theme === 'dark';
+    const chartColors = getChartColors(isDark ? 'dark' : 'light');
+    
     return (
         <ResponsiveContainer width="100%" height={height}>
             <RePieChart>
@@ -65,8 +79,8 @@ export function EnergyPieChart({
                         <Cell key={i} fill={entry.color} />
                     ))}
                 </Pie>
-                <Tooltip content={<CustomTooltip />} />
-                <Legend content={<CustomLegend />} />
+                <Tooltip content={<CustomTooltip chartColors={{ ...chartColors, isDark }} />} />
+                <Legend content={<CustomLegend chartColors={{ ...chartColors, isDark }} />} />
             </RePieChart>
         </ResponsiveContainer>
     );

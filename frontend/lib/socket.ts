@@ -16,7 +16,7 @@
 // ============================================================
 
 import { io, Socket } from 'socket.io-client';
-import type { EnergyMetrics, Alert, EnergyMetricsPayload } from '@/types';
+import type { EnergyMetrics, Alert, EnergyMetricsPayload, Tip, TipEventPayload } from '@/types';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001';
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
@@ -28,6 +28,8 @@ export interface ServerToClientEvents {
     energy: (data: { metrics: EnergyMetrics }) => void;
     'alert:received': (payload: any) => void;
     alert: (data: { alert: Alert }) => void;
+    'tip:received': (payload: TipEventPayload) => void;
+    tip: (data: { tip: Tip }) => void;
     connected: (data: { socketId: string; userId: string; timestamp: string }) => void;
 }
 
@@ -96,9 +98,10 @@ export function disconnectSocket() {
 type MockEventHandler = {
     energy: Array<(data: { metrics: EnergyMetrics }) => void>;
     alert: Array<(data: { alert: Alert }) => void>;
+    tip: Array<(data: { tip: Tip }) => void>;
 };
 
-const mockHandlers: MockEventHandler = { energy: [], alert: [] };
+const mockHandlers: MockEventHandler = { energy: [], alert: [], tip: [] };
 let mockIntervalEnergy: ReturnType<typeof setInterval> | null = null;
 let mockIntervalAlert: ReturnType<typeof setInterval> | null = null;
 

@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { useAlertStore } from '@/store/alertStore';
-import { getAlerts, markAllAlertsRead } from '@/lib/api';
+import { getAlerts, markAlertRead, deleteAllAlertsFromApi } from '@/lib/api';
 import { AlertCard } from '@/components/ui/AlertCard';
-import { Bell, CheckCheck, Filter } from 'lucide-react';
-import type { AlertSeverity, AlertType } from '@/types';
+import { Bell, CheckCheck, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useSettingsStore } from '@/store/settingsStore';
 
 const FILTERS: { label: string; value: string }[] = [
     { label: 'All', value: 'all' },
@@ -16,14 +16,18 @@ const FILTERS: { label: string; value: string }[] = [
 ];
 
 export default function AlertsPage() {
-    const { alerts, unreadCount, markRead, markAllRead, setAlerts } = useAlertStore();
+    const { alerts, unreadCount, markRead, markAllRead, setAlerts, clearAlerts } = useAlertStore();
     const [filter, setFilter] = useState('all');
     const [loading, setLoading] = useState(false);
+    const [clearing, setClearing] = useState(false);
+    const { selectedHomeId } = useSettingsStore();
 
+    // Initial load
     useEffect(() => {
+        if (!selectedHomeId) return;
         setLoading(true);
-        getAlerts().then(setAlerts).finally(() => setLoading(false));
-    }, [setAlerts]);
+        getAlerts(selectedHomeId).then(setAlerts).finally(() => setLoading(false));
+    }, [setAlerts, selectedHomeId]);
 
     const filtered = filter === 'all'
         ? alerts
@@ -31,7 +35,27 @@ export default function AlertsPage() {
 
     const handleMarkAllRead = () => {
         markAllRead();
-        markAllAlertsRead().catch(console.error);
+        // Since we removed global markAllRead API to be simple, we can do it iteratively
+        // or just let it be a local state optimization until the page refreshes
+        alerts.filter(a => !a.read).forEach(a => markAlertRead(a.id).catch(console.error));
+    };
+
+    const handleMarkRead = (id: string) => {
+        markRead(id);
+        markAlertRead(id).catch(console.error);
+    };
+
+    const handleClearAll = async () => {
+        if (!selectedHomeId || alerts.length === 0) return;
+        setClearing(true);
+        try {
+            await deleteAllAlertsFromApi(selectedHomeId);
+            clearAlerts();
+        } catch (err) {
+            console.error('[AlertsPage] Failed to clear alerts:', err);
+        } finally {
+            setClearing(false);
+        }
     };
 
     return (
@@ -60,7 +84,7 @@ export default function AlertsPage() {
                                 onClick={() => setFilter(value)}
                                 className={`px-3 py-1 rounded-lg text-xs font-medium transition-all ${filter === value
                                         ? 'bg-violet-600 text-white shadow-lg shadow-violet-500/20'
-                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:text-zinc-200 hover:bg-black/5 dark:bg-white/5'
+                                        : 'text-zinc-500 dark:text-zinc-400 hover:text-zinc-800 dark:text-zinc-200  dark:hover:text-zinc-200  hover:bg-black/5 dark:bg-white/5 dark:hover:bg-violet-500/20'
                                     }`}
                             >
                                 {label}
@@ -76,15 +100,25 @@ export default function AlertsPage() {
                             Mark all read
                         </button>
                     )}
+                    {alerts.length > 0 && (
+                        <button
+                            onClick={handleClearAll}
+                            disabled={clearing}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-xs text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 disabled:opacity-50 transition-all"
+                        >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            {clearing ? 'Clearing…' : 'Clear all'}
+                        </button>
+                    )}
                 </div>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3">
                 {[
-                    { label: 'Critical', count: alerts.filter(a => a.severity === 'critical').length, color: 'text-red-400 bg-red-500/10 border-red-500/20' },
-                    { label: 'Warnings', count: alerts.filter(a => a.severity === 'warning').length, color: 'text-amber-400 bg-amber-500/10 border-amber-500/20' },
-                    { label: 'Info', count: alerts.filter(a => a.severity === 'info').length, color: 'text-blue-400 bg-blue-500/10 border-blue-500/20' },
+                    { label: 'Critical', count: alerts.filter(a => a.severity === 'critical').length, color: ' bg-red-50 border-red-200 text-red-700 dark:text-red-400 dark:bg-red-500/10 dark:border-red-500/20' },
+                    { label: 'Warnings', count: alerts.filter(a => a.severity === 'warning').length, color: 'bg-amber-50 border-amber-200 text-amber-700  dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20' },
+                    { label: 'Info', count: alerts.filter(a => a.severity === 'info').length, color: 'bg-blue-50 border-blue-200 text-blue-700  dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20' },
                 ].map((s) => (
                     <div key={s.label} className={cn('rounded-2xl border p-4 text-center', s.color)}>
                         <p className="text-2xl font-bold">{s.count}</p>
@@ -107,11 +141,11 @@ export default function AlertsPage() {
                 </div>
             ) : (
                 <div className="space-y-2">
-                    {filtered.map((alert) => (
+                    {filtered.map((alert,index) => (
                         <AlertCard
-                            key={alert.id}
+                            key={index}
                             alert={alert}
-                            onRead={markRead}
+                            onRead={handleMarkRead}
                         />
                     ))}
                 </div>

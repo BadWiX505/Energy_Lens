@@ -23,7 +23,7 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 
             setAuth: (user, token) => set({ user, token, isAuthenticated: true }),
             updateUser: (user) => set({ user }),
-            logout: () => set({ user: null, token: null, isAuthenticated: false }),
+            logout: () => {},
         }),
         { name: 'energy-lens-auth' }
     )

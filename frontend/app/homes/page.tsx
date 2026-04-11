@@ -25,6 +25,7 @@ export default function HomesPage() {
         setDevicesForHome,
         updateDeviceInHome,
         removeDevice,
+        isHomesLoaded,
     } = useSettingsStore();
 
     const [loadingHomes, setLoadingHomes] = useState(true);
@@ -68,6 +69,12 @@ export default function HomesPage() {
     const homeIdsKey = useMemo(() => homes.map((h) => h.id).sort().join(','), [homes]);
 
     useEffect(() => {
+        // Skip loading if homes were already preloaded in AuthProvider
+        if (isHomesLoaded) {
+            setLoadingHomes(false);
+            return;
+        }
+
         let cancelled = false;
         setLoadingHomes(true);
         setHomesError('');
@@ -87,7 +94,7 @@ export default function HomesPage() {
         return () => {
             cancelled = true;
         };
-    }, [setHomes]);
+    }, [isHomesLoaded, setHomes]);
 
     useEffect(() => {
         if (!homeIdsKey) return;

@@ -71,7 +71,7 @@ export interface AlertEventPayload {
   homeId?: string;
   title: string;
   description: string;
-  severity: 'low' | 'medium' | 'high' | 'critical';
+  severity: 'info' | 'warning' | 'critical';
   timestamp: string;
   metadata?: Record<string, any>;
 }
