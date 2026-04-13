@@ -35,6 +35,7 @@ export {
   emitEnergyMetrics,
   emitAlert,
   emitTip,
+  emitScoreEarned,
   emitToRoom,
   broadcastEvent,
   getConnectedClientsCount,

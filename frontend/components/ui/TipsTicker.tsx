@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import * as LucideIcons from 'lucide-react';
 import { Lightbulb } from 'lucide-react';
 import { useTipsStore } from '@/store/tipsStore';
 
@@ -48,10 +47,6 @@ export function TipsTicker() {
     if (tips.length === 0) return null;
 
     const tip = tips[index];
-    const IconComponent =
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        ((LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[tip.iconName]) ??
-        Lightbulb;
 
     return (
         <div className="relative flex items-stretch overflow-hidden rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-transparent dark:from-amber-500/[0.12] dark:via-amber-500/[0.05] dark:to-transparent shadow-lg shadow-amber-500/5 h-28">
@@ -79,7 +74,7 @@ export function TipsTicker() {
                 >
                     {/* Icon */}
                     <div className="w-14 h-14 rounded-2xl bg-amber-500/15 border border-amber-500/20 flex items-center justify-center flex-shrink-0 shadow-sm">
-                        <IconComponent className="w-7 h-7 text-amber-500 dark:text-amber-400" />
+                        <Lightbulb className="w-7 h-7 text-amber-500 dark:text-amber-400" />
                     </div>
 
                     {/* Text */}

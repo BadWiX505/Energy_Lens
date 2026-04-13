@@ -40,7 +40,7 @@ export function useTipsLiveData(homeId: string | null) {
             const newTip: Tip = {
                 id: event.tipId || Math.random().toString(36).slice(2),
                 homeId: event.homeId || homeId,
-                iconName: event.iconName || 'Lightbulb',
+                imageUrls: event.imageUrls ?? [],
                 title: event.title || 'Energy Tip',
                 description: event.description || '',
                 categoryTag: event.category || 'General',

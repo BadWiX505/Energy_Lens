@@ -16,7 +16,7 @@
 // ============================================================
 
 import { io, Socket } from 'socket.io-client';
-import type { EnergyMetrics, Alert, EnergyMetricsPayload, Tip, TipEventPayload } from '@/types';
+import type { EnergyMetrics, Alert, EnergyMetricsPayload, Tip, TipEventPayload, ScoreEarnedPayload } from '@/types';
 
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001';
 const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
@@ -30,6 +30,7 @@ export interface ServerToClientEvents {
     alert: (data: { alert: Alert }) => void;
     'tip:received': (payload: TipEventPayload) => void;
     tip: (data: { tip: Tip }) => void;
+    'score:earned': (payload: ScoreEarnedPayload) => void;
     connected: (data: { socketId: string; userId: string; timestamp: string }) => void;
 }
 

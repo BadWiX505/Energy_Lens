@@ -9,15 +9,11 @@ export async function writePoint(measurement: string, tags: Record<string, strin
         point.setTag(key, value);
     }
     for (const [key, value] of Object.entries(fields)) {
-        if (typeof value === 'number') {
-            if (Number.isInteger(value)) {
-                point.setIntegerField(key, value);
-            } else {
-                point.setFloatField(key, value);
-            }
-        } else if (typeof value === 'string') {
-            point.setStringField(key, value);
-        }
+       if (typeof value === 'number') {
+          point.setFloatField(key, value); 
+      } else if (typeof value === 'string') {
+          point.setStringField(key, value);
+      }
     }
     point.setTimestamp(timestamp);
     

@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { X, Lightbulb, Leaf, Trash2 } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
 import { useTipsStore } from '@/store/tipsStore';
 import { useSettingsStore } from '@/store/settingsStore';
 import { deleteTipFromApi, deleteAllTipsFromApi } from '@/lib/api';
@@ -113,9 +112,7 @@ export function TipsDialog({ open, onClose }: TipsDialogProps) {
                         </div>
                     ) : (
                         tips.map((tip) => {
-                            // Dynamically resolve icon
-                            const IconComponent = (LucideIcons as unknown as Record<string, React.ComponentType<{ className?: string }>>)[tip.iconName] || Leaf;
-                            const colorClass = categoryColors[tip.categoryTag] || 'bg-zinc-700/40 text-zinc-500 dark:text-zinc-400 border-zinc-600/30';
+                            const colorClass = categoryColors[tip.categoryTag] || 'bg-white dark:bg-zinc-700/40 text-zinc-500 dark:text-zinc-400 border-zinc-600/30';
                             const isDeleting = deletingIds.has(tip.id);
 
                             return (
@@ -126,8 +123,8 @@ export function TipsDialog({ open, onClose }: TipsDialogProps) {
                                         isDeleting && 'opacity-50'
                                     )}
                                 >
-                                    <div className={cn('flex-shrink-0 w-9 h-9 rounded-xl border flex items-center justify-center', colorClass)}>
-                                        <IconComponent className="w-4 h-4" />
+                                    <div className={cn('flex-shrink-0 w-9 h-9 rounded-xl border flex items-center justify-center ', colorClass)}>
+                                        <Leaf className="w-4 h-4" />
                                     </div>
                                     <div className="flex-1 min-w-0">
                                         <div className="flex items-start justify-between gap-2 mb-1">

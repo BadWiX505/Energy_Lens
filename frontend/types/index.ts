@@ -97,7 +97,7 @@ export interface Alert {
 export interface Tip {
   id: string;
   homeId: string;
-  iconName: string;           // Lucide icon name (e.g., 'Lightbulb', 'Zap')
+  imageUrls?: string[];        // Scraped Google image URLs (up to 5)
   title: string;              // Tip title (max 6 words)
   description: string;        // Actionable explanation
   categoryTag: string;        // Category: 'Lighting', 'HVAC', 'Appliances', 'Habits'
@@ -248,8 +248,19 @@ export interface TipEventPayload {
   title: string;
   description: string;
   category: string;
+  imageUrls?: string[];
   timestamp: string;
   metadata?: Record<string, any>;
+}
+
+export interface ScoreEarnedPayload {
+  homeId: string;
+  scoreId: string;
+  score: number;
+  type: string;
+  label?: string | null;
+  totalScore: number;
+  date: string; // ISO 8601
 }
 
 // API response wrappers

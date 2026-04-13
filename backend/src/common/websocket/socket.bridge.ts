@@ -46,6 +46,7 @@ export const initializeSocketBridge = () => {
         title: payload.title,
         description: payload.description,
         category: payload.categoryTag,
+        imageUrls: payload.imageUrls ?? [],
         timestamp: payload.timestamp || new Date().toISOString(),
         metadata: payload.estimatedSavings ? { estimatedSavings: payload.estimatedSavings } : undefined,
       };

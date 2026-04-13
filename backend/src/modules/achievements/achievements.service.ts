@@ -9,6 +9,7 @@
  */
 
 import { prisma } from '../../common/config/prisma';
+import { emitScoreEarned } from '../../common/websocket';
 import { AchievementsRepository } from './achievements.repo';
 import { GoalsRepository } from '../goals/goals.repo';
 import type {
@@ -112,7 +113,18 @@ export class AchievementsService {
           const pts = ach?.scoreValue ?? 0;
           if (pts > 0) {
             const achName = ach?.name ?? 'Achievement';
-            await this.goalsRepo.awardScore(homeId, pts, 'achievement', `${achName} unlocked`);
+            const label = `${achName} unlocked`;
+            const newScore = await this.goalsRepo.awardScore(homeId, pts, 'achievement', label);
+            const updatedTotal = await this.goalsRepo.getTotalScore(homeId);
+            emitScoreEarned({
+              homeId,
+              scoreId: newScore.id,
+              score: pts,
+              type: 'achievement',
+              label,
+              totalScore: updatedTotal,
+              date: newScore.date instanceof Date ? newScore.date.toISOString() : new Date().toISOString(),
+            });
           }
           userAchievements.push({ ...created, achievement: ach! });
         }

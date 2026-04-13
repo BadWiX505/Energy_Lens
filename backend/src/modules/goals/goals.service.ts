@@ -11,6 +11,7 @@
 
 import { Prisma } from '../../generated/prisma/client';
 import { prisma } from '../../common/config/prisma';
+import { emitScoreEarned } from '../../common/websocket';
 import { GoalsRepository } from './goals.repo';
 import { EnergyRepository } from '../energy/energy.repo';
 import {
@@ -151,9 +152,19 @@ export class GoalsService {
           // Window ended and threshold was never exceeded — award points!
           const pts = GOAL_SCORE_VALUES[type];
           const label = `${goal.label ?? `${type} ${metric} goal`} completed`;
-          await this.repo.awardScore(homeId, pts, 'goal', label);
+          const newScore = await this.repo.awardScore(homeId, pts, 'goal', label);
+          const updatedTotal = await this.repo.getTotalScore(homeId);
           await this.repo.markAchieved(goal.id);
           currentStatus = 'achieved';
+          emitScoreEarned({
+            homeId,
+            scoreId: newScore.id,
+            score: pts,
+            type: 'goal',
+            label,
+            totalScore: updatedTotal,
+            date: newScore.date instanceof Date ? newScore.date.toISOString() : new Date().toISOString(),
+          });
         }
         // else: still active, in progress
       }

@@ -8,7 +8,7 @@
 // ────────────────────────────────────────────────────────────────────────────
 
 export interface EnergyTip {
-    iconName: string;         // e.g., 'Lightbulb', 'Zap', 'Flame' (Lucide icon names)
+    imageUrls: string[];      // Up to 5 scraped image URLs (may be empty)
     title: string;            // e.g., 'Switch to LED Bulbs' (max 6 words)
     description: string;      // e.g., 'LED bulbs use 75% less energy...' (max 2 sentences)
     categoryTag: string;      // e.g., 'Lighting', 'HVAC', 'Appliances', 'Habits'
@@ -23,7 +23,7 @@ export interface EnergyTip {
 export interface TipModel {
     id: string;
     homeId: string;
-    iconName: string | null;
+    imageUrls: string[];
     title: string | null;
     description: string | null;
     categoryTag: string | null;
@@ -38,7 +38,7 @@ export interface TipModel {
 export interface TipResponseDto {
     id: string;
     homeId: string;
-    iconName: string;
+    imageUrls: string[];
     title: string;
     description: string;
     categoryTag: string;
@@ -54,7 +54,7 @@ export interface TipResponseDto {
 
 /** Raw AI response before validation (per tip object) */
 export interface AiTipRaw {
-    iconName?: string | null;
+    imageDescription?: string | null;
     title?: string | null;
     description?: string | null;
     categoryTag?: string | null;
@@ -62,10 +62,11 @@ export interface AiTipRaw {
     [key: string]: any; // Allow extra fields from AI
 }
 
-/** Normalized, validated AI tip with runtime-safe defaults */
+/** Normalized, validated AI tip — includes imageDescription for scrapper use */
 export interface AiTipNormalized extends EnergyTip {
-    isValid: boolean; // Whether tip passed validation
-    validationErrors?: string[]; // What fields failed validation
+    imageDescription: string;  // passed through for the scrapper call
+    isValid: boolean;
+    validationErrors?: string[];
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -74,7 +75,7 @@ export interface AiTipNormalized extends EnergyTip {
 
 export interface CreateTipInput {
     homeId: string;
-    iconName: string;
+    imageUrls?: string[];
     title: string;
     description: string;
     categoryTag: string;
@@ -88,10 +89,8 @@ export interface CreateTipInput {
 // ────────────────────────────────────────────────────────────────────────────
 
 /**
- * Normalize AI tip response with runtime-safe defaults
- * Handles missing fields, truncation, and format correction
- * @param rawTip - Raw output from Gemini API
- * @returns Normalized tip or null if critically invalid
+ * Normalize AI tip response with runtime-safe defaults.
+ * imageUrls starts empty — the caller (gemeni.process.ts) fills it after scraping.
  */
 export function normalizeAiTip(rawTip: unknown): AiTipNormalized | null {
     if (!rawTip || typeof rawTip !== 'object') {
@@ -101,30 +100,25 @@ export function normalizeAiTip(rawTip: unknown): AiTipNormalized | null {
     const raw = rawTip as AiTipRaw;
     const errors: string[] = [];
 
-    // Sanitize iconName (must be valid Lucide icon name)
-    let iconName = (raw.iconName as string | undefined)?.trim() || '';
-    if (!iconName || typeof iconName !== 'string') {
-        errors.push('Invalid or missing iconName');
-        iconName = 'Lightbulb'; // Safe default
-    }
+    // Pass through imageDescription for scrapper use (no validation — any string is acceptable)
+    const imageDescription = (raw.imageDescription as string | undefined)?.trim() || 'energy saving';
 
     // Sanitize title (max 6 words, required)
     let title = (raw.title as string | undefined)?.trim() || '';
     if (!title || typeof title !== 'string') {
         errors.push('Invalid or missing title');
-        title = 'Energy Saving Tip'; // Safe default
+        title = 'Energy Saving Tip';
     }
     if (title.split(/\s+/).length > 6) {
-        title = title.split(/\s+/).slice(0, 6).join(' '); // Truncate
+        title = title.split(/\s+/).slice(0, 6).join(' ');
     }
 
     // Sanitize description (max 2 sentences, required)
     let description = (raw.description as string | undefined)?.trim() || '';
     if (!description || typeof description !== 'string') {
         errors.push('Invalid or missing description');
-        description = 'Apply this tip to reduce energy consumption.'; // Safe default
+        description = 'Apply this tip to reduce energy consumption.';
     }
-    // Simple sentence count heuristic: split on . ! ?
     const sentences = description.split(/[.!?]+/).filter(s => s.trim().length > 0);
     if (sentences.length > 2) {
         description = sentences.slice(0, 2).join('. ') + '.';
@@ -134,22 +128,22 @@ export function normalizeAiTip(rawTip: unknown): AiTipNormalized | null {
     let categoryTag = (raw.categoryTag as string | undefined)?.trim() || '';
     if (!categoryTag || typeof categoryTag !== 'string' || categoryTag.includes(' ')) {
         errors.push('Invalid or missing categoryTag (must be single word)');
-        categoryTag = 'General'; // Safe default
+        categoryTag = 'General';
     }
 
-    // Sanitize estimatedSavings (must be percentage format like "~X% savings")
+    // Sanitize estimatedSavings
     let estimatedSavings = (raw.estimatedSavings as string | undefined)?.trim() || '';
     if (!estimatedSavings || typeof estimatedSavings !== 'string') {
         errors.push('Invalid or missing estimatedSavings');
-        estimatedSavings = '~3% savings'; // Safe default
+        estimatedSavings = '~3% savings';
     }
-    // Normalize format: ensure it looks like "~X% savings"
     if (!estimatedSavings.includes('%') || !estimatedSavings.includes('savings')) {
-        estimatedSavings = '~3% savings'; // Fallback
+        estimatedSavings = '~3% savings';
     }
 
     return {
-        iconName,
+        imageDescription,
+        imageUrls: [],  // filled by the scrapper call in gemeni.process.ts
         title,
         description,
         categoryTag,
@@ -166,7 +160,7 @@ export function mapTipModelToDto(model: TipModel): TipResponseDto {
     return {
         id: model.id,
         homeId: model.homeId,
-        iconName: model.iconName || 'Lightbulb',
+        imageUrls: model.imageUrls ?? [],
         title: model.title || 'Energy Tip',
         description: model.description || 'Apply this tip to save energy.',
         categoryTag: model.categoryTag || 'General',

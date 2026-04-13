@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard, Cpu, Bell, Target, Settings, Zap, X, ChevronRight, ChevronLeft, Home as HomeIcon, LogOut, PanelLeftClose, PanelLeftOpen
@@ -62,23 +63,33 @@ export function Sidebar({ open, onClose, collapsed = false, onToggleCollapse }: 
                     'flex items-center border-b border-black/5 dark:border-white/5',
                     collapsed ? 'justify-center px-0 py-5' : 'justify-between px-5 py-5'
                 )}>
+                    {/* Expanded Logo */}
                     {!collapsed && (
                         <div className="flex items-center gap-2.5">
-                            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30 flex-shrink-0">
-                                <Zap className="w-4 h-4 text-white" />
-                            </div>
+                            <Image
+                                src="/Energy_lens_Logo.svg"
+                                alt="EnergyLens Logo"
+                                width={40}
+                                height={40}
+                                className="flex-shrink-0 rounded-lg object-contain"
+                            />
                             <div>
-                                <span className="font-bold text-white text-sm tracking-wide">Energy</span>
+                                <span className="font-bold text-zinc-700/90 dark:text-white text-sm tracking-wide">Energy</span>
                                 <span className="font-bold text-violet-400 text-sm">Lens</span>
                             </div>
                         </div>
                     )}
-                    {collapsed && (
-                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-violet-500/30">
-                            <Zap className="w-4 h-4 text-white" />
-                        </div>
-                    )}
 
+                    {/* Collapsed Logo */}
+                    {collapsed && (
+                        <Image
+                            src="/Energy_lens_Logo.svg"
+                            alt="EnergyLens Logo"
+                            width={40}
+                            height={40}
+                            className="rounded-lg object-contain"
+                        />
+                    )}
                     {/* Mobile close button */}
                     <button
                         onClick={onClose}
@@ -92,7 +103,7 @@ export function Sidebar({ open, onClose, collapsed = false, onToggleCollapse }: 
                         <button
                             onClick={onToggleCollapse}
                             title="Collapse sidebar"
-                            className="hidden lg:flex items-center justify-center w-7 h-7 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-white/10 transition-colors"
+                            className="hidden lg:flex cursor-pointer items-center justify-center w-7 h-7 rounded-lg dark:text-zinc-400 text-zinc-600/80  dark:hover:text-zinc-100 dark:hover:bg-white/10 hover:bg-zinc-900/10 transition-colors"
                         >
                             <PanelLeftClose className="w-4 h-4" />
                         </button>
@@ -105,7 +116,7 @@ export function Sidebar({ open, onClose, collapsed = false, onToggleCollapse }: 
                         <button
                             onClick={onToggleCollapse}
                             title="Expand sidebar"
-                            className="flex items-center justify-center w-8 h-8 rounded-lg text-zinc-400 hover:text-zinc-100 hover:bg-white/10 transition-colors"
+                            className="flex cursor-pointer items-center justify-center w-8 h-8 rounded-lg dark:text-zinc-400 text-zinc-600/80  dark:hover:text-zinc-100 dark:hover:bg-white/10 hover:bg-zinc-900/10 transition-colors"
                         >
                             <PanelLeftOpen className="w-4 h-4" />
                         </button>

@@ -87,8 +87,22 @@ export interface TipEventPayload {
   title: string;
   description: string;
   category: string;
+  imageUrls?: string[];
   timestamp: string;
   metadata?: Record<string, any>;
+}
+
+/**
+ * Score earned event payload - emitted when a goal or achievement awards points
+ */
+export interface ScoreEarnedPayload {
+  homeId: string;
+  scoreId: string;
+  score: number;
+  type: string;
+  label?: string | null;
+  totalScore: number;
+  date: string; // ISO 8601
 }
 
 /**
@@ -98,6 +112,7 @@ export interface ServerToClientEvents {
   'energy:metrics': (payload: EnergyMetricsPayload) => void;
   'alert:received': (payload: AlertEventPayload) => void;
   'tip:received': (payload: TipEventPayload) => void;
+  'score:earned': (payload: ScoreEarnedPayload) => void;
   'connected': () => void;
   'disconnected': () => void;
 }

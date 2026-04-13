@@ -40,6 +40,9 @@ export class EnergyController {
         mode as HistoryMode
       );
 
+      console.log(`[HISTORY] Fetched ${data.length} history points for device ${deviceId} in mode ${mode}`);
+      console.log(`[HISTORY] Sample data point: ${JSON.stringify(data)}`);
+
       return res.status(200).json({
         deviceId,
         mode,
@@ -67,6 +70,7 @@ export class EnergyController {
       }
 
       const summary = await this.energyService.getSummary(deviceId, userId);
+      console.log(`[SUMMARY] Fetched summary for device ${deviceId}: ${JSON.stringify(summary)}`);
       return res.status(200).json(summary);
     } catch (error) {
       next(error);

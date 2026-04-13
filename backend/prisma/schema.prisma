@@ -168,21 +168,20 @@ model UserAchievement {
 // TIPS
 // =====================
 model Tip {
-  id                String   @id @default(uuid()) @db.Uuid
-  homeId            String   @map("home_id") @db.Uuid
-  iconName          String?  @map("icon_name")           // Lucide icon name (e.g., 'Lightbulb', 'Zap')
-  title             String?                              // Tip title (max 6 words)
-  description       String?                              // Actionable explanation (max 2 sentences)
-  categoryTag       String?  @map("category_tag")        // Category: 'Lighting', 'HVAC', 'Appliances', 'Habits'
-  estimatedSavings String?  @map("estimated_savings")   // e.g., '~5% savings'
-  sourceDeviceId    String?  @map("source_device_id") @db.Uuid // Optional: which device triggered this tip
-  metadata          Json?                                // Extra AI response context or debugging info
-  createdAt         DateTime @default(now()) @map("created_at")
-  generatedAt       DateTime @default(now()) @map("generated_at") // When AI generated this tip
+  id               String   @id @default(uuid()) @db.Uuid
+  homeId           String   @map("home_id") @db.Uuid
+  imageUrls        String[] @map("image_urls")           // Scraped Google image URLs (up to 5)
+  title            String?                               // Tip title (max 6 words)
+  description      String?                               // Actionable explanation (max 2 sentences)
+  categoryTag      String?  @map("category_tag")         // Category: 'Lighting', 'HVAC', 'Appliances', 'Habits'
+  estimatedSavings String?  @map("estimated_savings")    // e.g., '~5% savings'
+  sourceDeviceId   String?  @map("source_device_id") @db.Uuid
+  metadata         Json?                                 // Extra AI response context or debugging info
+  createdAt        DateTime @default(now()) @map("created_at")
+  generatedAt      DateTime @default(now()) @map("generated_at")
 
-  home              Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
+  home             Home     @relation(fields: [homeId], references: [id], onDelete: Cascade)
 
-  // Indexes for common queries: list by home (sorted by generated date)
   @@index([homeId, generatedAt])
   @@index([homeId, createdAt])
   @@map("tips")

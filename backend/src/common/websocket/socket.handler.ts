@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { EnergyMetricsPayload, AlertEventPayload, TipEventPayload } from './socket.types';
+import { EnergyMetricsPayload, AlertEventPayload, TipEventPayload, ScoreEarnedPayload } from './socket.types';
 
 /**
  * Global socket handler instance - initialized by socket.manager.ts
@@ -105,6 +105,19 @@ export const emitTip = (payload: TipEventPayload) => {
   });
 
   console.log(`[SocketHandler] Emitted tip:received to rooms: ${rooms.join(', ')}`);
+};
+
+/**
+ * Emit score:earned to the home room when a goal or achievement awards points
+ */
+export const emitScoreEarned = (payload: ScoreEarnedPayload) => {
+  if (!socketServer) {
+    console.warn('[SocketHandler] Socket server not initialized, skipping score:earned emission');
+    return;
+  }
+  const room = `home/${payload.homeId}`;
+  socketServer.to(room).emit('score:earned', payload);
+  console.log(`[SocketHandler] Emitted score:earned (+${payload.score} pts) to room ${room}`);
 };
 
 /**

@@ -27,7 +27,7 @@ import type { CreateTipInput } from './tips.types';
 // ────────────────────────────────────────────────────────────────────────────
 
 const TIPS_GENERATION_INTERVAL_MINUTES = parseInt(
-    process.env.TIPS_GENERATION_INTERVAL_MINUTES || '3',
+    process.env.TIPS_GENERATION_INTERVAL_MINUTES || '30',
     10
 );
 const TIPS_MIN_REQUIRED_SAMPLES = parseInt(
@@ -281,7 +281,7 @@ class TipsGenerator {
 
             const tipInputs: CreateTipInput[] = tips.slice(0, TIPS_MAX_PER_GENERATION).map(tip => ({
                 homeId,
-                iconName: tip.iconName,
+                imageUrls: tip.imageUrls,
                 title: tip.title,
                 description: tip.description,
                 categoryTag: tip.categoryTag,
@@ -301,7 +301,7 @@ class TipsGenerator {
                 eventBus.emit('event:tip:generated', {
                     tipId: tip.id,
                     homeId,
-                    iconName: tip.iconName,
+                    imageUrls: tip.imageUrls,
                     title: tip.title,
                     description: tip.description,
                     categoryTag: tip.categoryTag,

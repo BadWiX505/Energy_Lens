@@ -12,7 +12,7 @@ import { EnergyAreaChart } from '@/components/ui/AreaChart';
 import { EnergyBarChart } from '@/components/ui/BarChart';
 import { ConnectionStatus } from '@/components/ui/ConnectionStatus';
 import { DeviceSelector } from '@/components/ui/DeviceSelector';
-import { TipsTicker } from '@/components/ui/TipsTicker';
+import { TipsCard } from '@/components/ui/TipsCard';
 import { formatNumber } from '@/lib/utils';
 import type { MonitoringMode, EnergySummary, ComparisonData } from '@/types';
 import { AlertCircle, Loader } from 'lucide-react';
@@ -93,6 +93,9 @@ export default function DashboardPage() {
     setMonitoringMode(mode);
   }, [setMonitoringMode]);
 
+  useEffect(() => {
+    console.log({ summary });
+  }, [summary]);
   // In Live mode: show real WebSocket data
   // In other modes: show summary data from API
   const displayMetrics = monitoringMode === 'live'
@@ -193,8 +196,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* ── Tips ticker ─────────────────────────────────────────── */}
-      <TipsTicker />
+      {/* ── Tips card ──────────────────────────────────────────── */}
 
       {/* ── Metric cards ───────────────────────────────────────── */}
       {monitoringMode === 'live' ? (
@@ -227,11 +229,15 @@ export default function DashboardPage() {
       {/* ── Charts ─────────────────────────────────────────────── */}
       {monitoringMode === 'live' ? (
         metrics ? (
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+          <div className="grid grid-cols-2  grid-rows-2 gap-4">
+             <div className="lg:col-span-1 lg:row-span-2">
+              <TipsCard  mode={monitoringMode}/>
+            </div>
             <ChartCard
               title="Power & Energy — Live"
               subtitle={`${liveChartData.length} data ${liveChartData.length === 1 ? 'point' : 'points'}`}
               action={<span className="text-[10px] text-zinc-400 dark:text-zinc-500">Real-time updates</span>}
+              className='col-span-1 row-span-1'
             >
               <EnergyAreaChart
                 data={liveChartData}
@@ -239,34 +245,43 @@ export default function DashboardPage() {
                 height={220}
               />
             </ChartCard>
-            <ChartCard title="Voltage & Current — Live" subtitle="Real-time electrical parameters">
+            <ChartCard title="Voltage & Current — Live" subtitle="Real-time electrical parameters" className='col-span-1 row-span-1'>
               <EnergyAreaChart
                 data={liveChartData}
                 dataKeys={[
                   { key: 'Voltage', color: '#06b6d4', label: 'Voltage (V)' },
                   { key: 'Current', color: '#f59e0b', label: 'Current (A)' },
                 ]}
-                height={220}
+                className='h-full'
+                height={250}
               />
             </ChartCard>
           </div>
         ) : null
       ) : (
         <>
-          {/* Grouped area chart */}
-          <ChartCard
-            title={`Energy Consumption — ${MODES.find(m => m.value === monitoringMode)?.label}`}
-            subtitle={`${groupedHistory.length} periods`}
-          >
-            <EnergyAreaChart
-              data={groupedHistory}
-              dataKeys={[
-                { key: 'energy', color: '#8b5cf6', label: 'Energy (kWh)' },
-                { key: 'power', color: '#06b6d4', label: 'Avg Power (W)' },
-              ]}
-              height={260}
-            />
-          </ChartCard>
+          {/* TipsCard + Main chart — side by side, tips wider */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-stretch">
+            <div className="lg:col-span-3">
+              <TipsCard mode={monitoringMode}/>
+            </div>
+            <div className="lg:col-span-2">
+              <ChartCard
+                title={`Energy Consumption — ${MODES.find(m => m.value === monitoringMode)?.label}`}
+                subtitle={`${groupedHistory.length} periods`}
+                className="h-full"
+              >
+                <EnergyAreaChart
+                  data={groupedHistory}
+                  dataKeys={[
+                    { key: 'energy', color: '#8b5cf6', label: 'Energy (kWh)' },
+                    { key: 'power', color: '#06b6d4', label: 'Avg Power (W)' },
+                  ]}
+                  height={260}
+                />
+              </ChartCard>
+            </div>
+          </div>
 
           {/* Comparison + Cost */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">

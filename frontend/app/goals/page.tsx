@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useGoalsStore } from '@/store/goalsStore';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useAuthStore } from '@/store/authStore';
 import { getGoals, getAchievements, postGoal, deleteGoal, markScoreRead, markAchievementRead } from '@/lib/api';
 import { ProgressBar } from '@/components/ui/ProgressBar';
 import { ChartCard } from '@/components/ui/ChartCard';
@@ -12,7 +13,8 @@ import {
     ShoppingBag, Check, Users, Calendar, AlertTriangle,
 } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
-import type { Goal, GoalPeriod, GoalMetric, Achievement, EnergyScore } from '@/types';
+import type { Goal, GoalPeriod, GoalMetric, Achievement, EnergyScore, ScoreEarnedPayload } from '@/types';
+import { getSocket, isMockMode } from '@/lib/socket';
 
 // ── Reward store items (frontend-only, no backend) ───────────
 
@@ -34,6 +36,74 @@ const MAX_TARGETS: Record<GoalPeriod, Record<GoalMetric, number>> = {
     weekly:  { energy: 3500,  cost: 3500,  power: 50000 },
     monthly: { energy: 15000, cost: 15000, power: 50000 },
 };
+
+// ── Goals loader ─────────────────────────────────────────────
+
+const LOADER_MESSAGES = [
+    'Évaluons vos objectifs… ',
+    'Comptons vos victoires… ',
+    'Calcul des points… ',
+    'Chargement des récompenses… ',
+    'Presque prêt… ',
+];
+
+function GoalsLoader() {
+    const [msgIdx, setMsgIdx] = useState(0);
+    const [energyPct, setEnergyPct] = useState(15);
+
+    useEffect(() => {
+        const msg = setInterval(() => setMsgIdx((i) => (i + 1) % LOADER_MESSAGES.length), 1500);
+        const bar = setInterval(() => setEnergyPct((p) => Math.min(p + 12, 92)), 600);
+        return () => { clearInterval(msg); clearInterval(bar); };
+    }, []);
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-white dark:bg-zinc-950 w-full h-screen">
+            <div className="flex flex-col items-center gap-6 p-10 rounded-3xl border border-violet-500/30 dark:bg-zinc-900/95 bg-amber-50/10 shadow-2xl shadow-violet-900/30 max-w-xs w-full mx-4">
+                {/* Bouncing icons */}
+                <div className="flex items-end gap-4">
+                    <Trophy
+                        className="w-10 h-10 text-amber-400"
+                        style={{ animation: 'bounce 1s infinite', animationDelay: '0ms' }}
+                    />
+                    <Target
+                        className="w-12 h-12 text-violet-400"
+                        style={{ animation: 'bounce 1s infinite', animationDelay: '150ms' }}
+                    />
+                    <Star
+                        className="w-10 h-10 text-emerald-400"
+                        style={{ animation: 'bounce 1s infinite', animationDelay: '300ms' }}
+                    />
+                    <Zap
+                        className="w-8 h-8 text-sky-400"
+                        style={{ animation: 'bounce 1s infinite', animationDelay: '450ms' }}
+                    />
+                </div>
+
+                {/* Message */}
+                <p className="text-base font-bold text-zinc-800 dark:text-zinc-100 text-center transition-all duration-500 min-h-[1.5rem]">
+                    {LOADER_MESSAGES[msgIdx]}
+                </p>
+
+                {/* Energy progress bar */}
+                <div className="w-full space-y-1.5">
+                    <div className="flex justify-between text-[10px] text-zinc-400">
+                        <span>Chargement…</span>
+                        <span>{energyPct}%</span>
+                    </div>
+                    <div className="h-2.5 rounded-full bg-zinc-700 overflow-hidden">
+                        <div
+                            className="h-full rounded-full bg-gradient-to-r from-violet-500 via-emerald-400 to-amber-400 transition-all duration-500"
+                            style={{ width: `${energyPct}%` }}
+                        />
+                    </div>
+                </div>
+
+                <p className="text-[11px] text-zinc-500 text-center">Power up ⚡ vos objectifs sont en cours de traitement</p>
+            </div>
+        </div>
+    );
+}
 
 // ── Score gauge ───────────────────────────────────────────────
 
@@ -419,25 +489,24 @@ export default function GoalsPage() {
     } = useGoalsStore();
 
     const { selectedHomeId } = useSettingsStore();
+    const { token } = useAuthStore();
     const [showAddModal, setShowAddModal] = useState(false);
     const [showRewardStore, setShowRewardStore] = useState(false);
-    const [loading, setLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const [showCelebration, setShowCelebration] = useState(false);
     // Guard: only show celebration once per data load
     const celebrationShownRef = useRef(false);
 
     const loadData = useCallback(async () => {
         if (!selectedHomeId) return;
-        setLoading(true);
+        setIsLoading(true);
         celebrationShownRef.current = false;
         try {
             // Sequential: goals first (awards goal scores), then achievements (awards achievement scores)
-            // This guarantees achData.totalScore reflects ALL points (goals + achievements)
             const goalsData = await getGoals(selectedHomeId);
             const achData = await getAchievements(selectedHomeId);
 
             setGoals(goalsData.goals);
-            // Use achievements totalScore — it's fetched after goals finished awarding
             setTotalScore(achData.totalScore ?? goalsData.totalScore);
             setEnergyScores(goalsData.energyScores);
             setNewScores(goalsData.newScores);
@@ -453,11 +522,50 @@ export default function GoalsPage() {
         } catch (err) {
             console.error('Failed to load goals/achievements:', err);
         } finally {
-            setLoading(false);
+            setIsLoading(false);
         }
     }, [selectedHomeId, setGoals, setTotalScore, setEnergyScores, setNewScores, setAchievements, setCommunityStats, setNewAchievements]);
 
     useEffect(() => { loadData(); }, [loadData]);
+
+    // ── Real-time score:earned subscription ──────────────────
+    useEffect(() => {
+        if (!selectedHomeId || isMockMode) return;
+
+        const socket = getSocket(token || undefined);
+        if (!socket) return;
+
+        const room = `home/${selectedHomeId}`;
+        socket.emit('subscribe', room);
+
+        const handleScoreEarned = (payload: ScoreEarnedPayload) => {
+            const newScore: EnergyScore = {
+                id: payload.scoreId,
+                homeId: payload.homeId,
+                score: payload.score,
+                type: payload.type,
+                label: payload.label ?? undefined,
+                date: payload.date,
+                isRead: false,
+            };
+            // Prepend to history (avoid duplicates)
+            const current = useGoalsStore.getState().energyScores;
+            if (!current.some((s) => s.id === newScore.id)) {
+                setEnergyScores([newScore, ...current]);
+                setTotalScore(payload.totalScore);
+                // Also trigger celebration popup
+                const currentNew = useGoalsStore.getState().newScores;
+                setNewScores([newScore, ...currentNew]);
+                setShowCelebration(true);
+            }
+        };
+
+        socket.on('score:earned', handleScoreEarned);
+
+        return () => {
+            socket.off('score:earned', handleScoreEarned);
+        };
+    }, [selectedHomeId, token, setEnergyScores, setTotalScore, setNewScores]);
 
     const handleAddGoal = (goal: Goal) => { addGoal(goal); };
     const handleDeleteGoal = (id: string) => {
@@ -479,7 +587,10 @@ export default function GoalsPage() {
     }
 
     return (
-        <div className="space-y-6 pb-8">
+        <div className="space-y-6 pb-8 relative">
+            {/* Loader overlay */}
+            {isLoading && <GoalsLoader />}
+
             {/* Header */}
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -501,7 +612,7 @@ export default function GoalsPage() {
                 </div>
             </div>
 
-            {loading && <div className="text-center py-2 text-xs text-zinc-500">Processing your goals\u2026</div>}
+            {isLoading && <div className="text-center py-2 text-xs text-zinc-500">Chargement…</div>}
 
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
                 {/* Left: Goals + Achievements */}
@@ -510,7 +621,7 @@ export default function GoalsPage() {
                     <div>
                         <h3 className="text-xs uppercase tracking-wider text-zinc-400 font-semibold mb-2">Your Goals</h3>
                         {goals.length === 0 ? (
-                            <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-zinc-900/80 p-8 text-center">
+                            <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-zinc-900/80 p-8 text-center">
                                 <Target className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
                                 <p className="text-sm text-zinc-500">No goals yet.</p>
                                 <p className="text-xs text-zinc-600 mt-1">Add a goal and track your energy over a custom window.</p>
@@ -571,8 +682,8 @@ export default function GoalsPage() {
                         </div>
                         <p className="text-4xl font-black text-violet-600 dark:text-violet-300">{totalScore}</p>
                         <div className="mt-3 text-[11px] text-zinc-500 space-y-1">
-                            <p>\ud83c\udfc6 {achievements.filter(a => a.unlocked).length} / {achievements.length} achievements</p>
-                            <p>\ud83d\udccb {goals.length} goal{goals.length !== 1 ? 's' : ''} tracked</p>
+                            <p> {achievements.filter(a => a.unlocked).length} / {achievements.length} achievements</p>
+                            <p> {goals.length} goal{goals.length !== 1 ? 's' : ''} tracked</p>
                         </div>
                     </div>
 

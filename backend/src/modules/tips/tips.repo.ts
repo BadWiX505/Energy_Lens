@@ -39,7 +39,7 @@ export class TipsRepository {
     return (await prisma.tip.create({
       data: {
         homeId: data.homeId,
-        iconName: data.iconName,
+        imageUrls: data.imageUrls ?? [],
         title: data.title,
         description: data.description,
         categoryTag: data.categoryTag,
@@ -58,7 +58,7 @@ export class TipsRepository {
     const created = await prisma.tip.createMany({
       data: tips.map(t => ({
         homeId: t.homeId,
-        iconName: t.iconName,
+        imageUrls: t.imageUrls ?? [],
         title: t.title,
         description: t.description,
         categoryTag: t.categoryTag,

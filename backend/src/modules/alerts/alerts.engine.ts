@@ -65,9 +65,11 @@ function isNightTime(nightHours: number[], timestamp: number = Date.now()): bool
  * Returns spike % if detected, 0 otherwise
  */
 function calculatePowerSpike(currentPower: number, powerHistory: number[]): number {
+  const spikeTreshold = 500; 
   if (powerHistory.length < 2) return 0;
   const avgPower = powerHistory.reduce((a, b) => a + b, 0) / powerHistory.length;
   if (avgPower === 0) return 0;
+  if(currentPower - avgPower < spikeTreshold) return 0;
   const spike = ((currentPower - avgPower) / avgPower) * 100;
   return spike > 0 ? spike : 0;
 }

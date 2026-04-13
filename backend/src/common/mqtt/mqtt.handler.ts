@@ -17,7 +17,7 @@ export const mqttMessageHandler = (receivedTopic: string, payload: Buffer) => {
         tags: data.tags || {},
         metrics: data.metrics || {}
       }).catch(err => console.error('[MQTT] Alerts processing error:', err));
-
+        
       // Write to InfluxDB as energy_metrics measurement
       const timestamp = Math.floor(new Date(data.timestamp || new Date()).getTime() / 1000);
       writePoint(metricsMesurement, data.tags || {}, data.metrics || {}, timestamp)

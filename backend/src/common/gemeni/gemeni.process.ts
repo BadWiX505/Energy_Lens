@@ -1,5 +1,6 @@
 import geminiService, { EnergyUsageData } from './gemeni.service';
-import { EnergyTip, normalizeAiTip } from '../../modules/tips/tips.types';
+import { getImageUrl } from './gemeni.scrapper';
+import { EnergyTip, AiTipNormalized, normalizeAiTip } from '../../modules/tips/tips.types';
 export async function processTip(usage: EnergyUsageData, message: string): Promise<EnergyTip[] | null> {
     const usageDataMessage: EnergyUsageData = usage;
     const advisoryContext: string = message;
@@ -31,32 +32,36 @@ export async function processTip(usage: EnergyUsageData, message: string): Promi
 
 export async function getTips(usageContext: EnergyUsageData): Promise<EnergyTip[] | null> {
     const SYSTEM_ADVISORY_PROMPT = `
-You are an expert energy-saving advisory system analyzing home electricity consumption data.
-Your objective is to provide max 3 highly actionable, specific tips to reduce consumption based on the user's data.
+You are "Sparky," a friendly and encouraging energy-saving buddy. Your job is to look at home electricity data and find "energy leaks" in a way that anyone—from a 10-year-old to a grandparent—can understand.
+
+Your goal is to provide 3 fun, easy-to-follow, and highly actionable tips based on the user's specific data.
+
+TONE & STYLE GUIDELINES:
+- Friendly & Generative: Use warm, encouraging language. Instead of "Optimize HVAC," say "Give your heater a nap."
+- Simple Language: No technical jargon (avoid terms like "peak load" or "kilowatt-hours"). Use metaphors like "vampire power" or "energy hogs."
+- For Everyone: Write so that a non-technical person feels empowered, not lectured.
 
 STRICT OUTPUT RULES:
-1. You must respond ONLY with a raw JSON array.
-2. Do not include any markdown formatting (like \`\`\`json), conversational text, greetings, or explanations.
-3. Every object in the array MUST adhere exactly to the following JSON schema:
+1. Respond ONLY with a raw JSON array.
+2. No markdown formatting (no \`\`\`json), no greetings, and no conversational filler.
+3. Use the following schema:
 
 [
   {
-    "iconName": "A valid Lucide icon name in PascalCase that represents the tip (e.g., 'Lightbulb', 'Zap', 'PowerOff', 'Thermometer', 'Wind').",
-    "title": "A short, punchy title summarizing the action (max 6 words).",
-    "description": "A specific, actionable explanation based strictly on the provided data (max 2 sentences).",
-    "categoryTag": "A single word categorizing the tip (e.g., 'Lighting', 'Appliances', 'HVAC', 'Habits').",
-    "estimatedSavings": "A realistic percentage estimate formatted exactly like '~X% savings' (e.g., '~5% savings')."
+    "imageDescription": "A brief but well defined description of the image to search that describes the tip well (e.g., 'energy saving lamp').",
+    "title": "A friendly, catchy title (max 6 words).",
+    "description": "Explain the tip like a helpful friend. Use simple words to explain what the data shows and how to fix it (max 2 sentences).",
+    "categoryTag": "One simple word (e.g., 'Kitchen', 'Bedtime', 'Sunshine', 'Laundry').",
+    "estimatedSavings": "A realistic estimate (e.g., '~8% savings')."
   }
 ]
 
-GUIDELINES FOR QUALITY TIPS:
-- Base tips on actual consumption patterns in the data provided.
-- If data shows high HVAC usage, suggest thermostat optimization.
-- If data shows high peak power, suggest load shifting.
-- If data shows anomalies, suggest investigation of specific devices.
-- If data shows night-time usage above threshold, suggest scheduling changes.
-- Make savings estimates realistic (3-15% range typical).
-- Avoid generic tips; reference actual numbers from the data.
+DATA ANALYSIS TASKS:
+- Look for "Vampire Power": If night usage is high, suggest unplugging "sleeping" electronics.
+- Look for "Energy Hogs": If there are big spikes, suggest using large machines (like the dryer) at different times.
+- Look for "Overwork": If usage is constant, suggest giving the heater or AC a small break.
+
+Important : tips must be in french language
 `;
 
     // Prepare and validate usage context data
@@ -107,7 +112,7 @@ GUIDELINES FOR QUALITY TIPS:
         // Normalize and validate each tip
         // ────────────────────────────────────────────────────────────────────
 
-        const normalizedTips: EnergyTip[] = [];
+        const normalizedTips: AiTipNormalized[] = [];
         const seenTitles = new Set<string>(); // Dedupe by title
 
         for (const rawTip of parsedTips) {
@@ -125,13 +130,7 @@ GUIDELINES FOR QUALITY TIPS:
             }
 
             seenTitles.add(normalized.title.toLowerCase());
-            normalizedTips.push({
-                iconName: normalized.iconName,
-                title: normalized.title,
-                description: normalized.description,
-                categoryTag: normalized.categoryTag,
-                estimatedSavings: normalized.estimatedSavings,
-            });
+            normalizedTips.push(normalized);
 
             if (normalized.validationErrors && normalized.validationErrors.length > 0) {
                 console.debug(`[getTips] Tip "${normalized.title}" had validation fixes:`, normalized.validationErrors);
@@ -139,16 +138,29 @@ GUIDELINES FOR QUALITY TIPS:
         }
 
         // ────────────────────────────────────────────────────────────────────
-        // Return capped result (max N tips)
+        // Cap to MAX_TIPS then scrape images in parallel
         // ────────────────────────────────────────────────────────────────────
 
-        const MAX_TIPS = 3; // Return up to 3 tips per generation
-        const cappedTips = normalizedTips.slice(0, MAX_TIPS);
+        const MAX_TIPS = 3;
+        const cappedNormalized = normalizedTips.slice(0, MAX_TIPS);
 
-        if (cappedTips.length === 0) {
+        if (cappedNormalized.length === 0) {
             console.warn('[getTips] No valid tips generated from AI response');
             return null;
         }
+
+        // Call image scrapper for each tip in parallel
+        const imageResults = await Promise.all(
+            cappedNormalized.map((t) => getImageUrl(t.imageDescription))
+        );
+
+        const cappedTips: EnergyTip[] = cappedNormalized.map((t, i) => ({
+            imageUrls: imageResults[i] ?? [],
+            title: t.title,
+            description: t.description,
+            categoryTag: t.categoryTag,
+            estimatedSavings: t.estimatedSavings,
+        }));
 
         console.log(`[getTips] Successfully generated ${cappedTips.length} tips`);
         console.dir(cappedTips, { depth: null });
