@@ -37,9 +37,9 @@ export function TipsDialog({ open, onClose }: TipsDialogProps) {
         try {
             await deleteTipFromApi(tipId);
             removeTip(tipId);
-            toast.success('Tip deleted');
+            toast.success('Conseil supprimé');
         } catch (error) {
-            toast.error('Failed to delete tip');
+            toast.error('Impossible de supprimer le conseil');
             console.error('Delete tip error:', error);
         } finally {
             setDeletingIds((prev) => {
@@ -52,16 +52,16 @@ export function TipsDialog({ open, onClose }: TipsDialogProps) {
 
     const handleDeleteAll = async () => {
         if (!selectedHomeId) {
-            toast.error('No home selected');
+            toast.error('Aucune résidence sélectionnée');
             return;
         }
         setIsDeletingAll(true);
         try {
             await deleteAllTipsFromApi(selectedHomeId);
             clearTips();
-            toast.success('All tips deleted');
+            toast.success('Tous les conseils supprimés');
         } catch (error) {
-            toast.error('Failed to delete all tips');
+            toast.error('Impossible de supprimer les conseils');
             console.error('Delete all tips error:', error);
         } finally {
             setIsDeletingAll(false);
@@ -87,9 +87,9 @@ export function TipsDialog({ open, onClose }: TipsDialogProps) {
                             <Lightbulb className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                         </div>
                         <div>
-                            <h2 className="text-sm font-semibold dark:text-white">Energy Saving Tips</h2>
+                            <h2 className="text-sm font-semibold dark:text-white">Conseils d’Économie d’Énergie</h2>
                             <p className="text-[11px] text-zinc-500 dark:text-zinc-400">
-                                {tips.length === 0 ? 'No tips yet' : `${tips.length} tip${tips.length !== 1 ? 's' : ''}`}
+                                {tips.length === 0 ? 'Pas encore de conseils' : `${tips.length} conseil${tips.length !== 1 ? 's' : ''}`}
                             </p>
                         </div>
                     </div>
@@ -107,7 +107,7 @@ export function TipsDialog({ open, onClose }: TipsDialogProps) {
                         <div className="flex flex-col items-center justify-center py-12">
                             <Leaf className="w-10 h-10 text-zinc-400 dark:text-zinc-600 mb-3" />
                             <p className="text-sm text-zinc-500 dark:text-zinc-400 text-center">
-                                No tips yet. Tips will appear as your energy data is analyzed.
+                                Pas encore de conseils. Ils apparaîtront au fur et à mesure que vos données sont analysées.
                             </p>
                         </div>
                     ) : (
@@ -158,7 +158,7 @@ export function TipsDialog({ open, onClose }: TipsDialogProps) {
                 <div className="px-6 py-3 border-t border-black/5 dark:border-white/5 bg-zinc-100/50 dark:bg-zinc-900/50 flex items-center justify-between">
                     <p className="text-[11px] text-zinc-400 dark:text-zinc-500 flex items-center gap-1.5">
                         <Leaf className="w-3 h-3 text-emerald-400" />
-                        Tips are generated based on your usage patterns
+                        Les conseils sont générés selon vos habitudes de consommation
                     </p>
                     {tips.length > 0 && (
                         <button
@@ -166,7 +166,7 @@ export function TipsDialog({ open, onClose }: TipsDialogProps) {
                             disabled={isDeletingAll}
                             className="text-[11px] px-2 py-1 rounded text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                            {isDeletingAll ? 'Clearing...' : 'Clear all'}
+                            {isDeletingAll ? 'Suppression...' : 'Tout effacer'}
                         </button>
                     )}
                 </div>

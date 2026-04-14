@@ -13,12 +13,12 @@ import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 
 const NAV_ITEMS = [
-    { href: '/', icon: LayoutDashboard, label: 'Dashboard' },
-    { href: '/homes', icon: HomeIcon, label: 'Homes & Devices' },
-    { href: '/insights', icon: Cpu, label: 'Insights' },
-    { href: '/alerts', icon: Bell, label: 'Alerts', badge: true },
-    { href: '/goals', icon: Target, label: 'Goals' },
-    { href: '/settings', icon: Settings, label: 'Settings' },
+    { href: '/', icon: LayoutDashboard, label: 'Tableau de bord' },
+    { href: '/homes', icon: HomeIcon, label: 'Résidences & Appareils' },
+    { href: '/insights', icon: Cpu, label: 'Analyse' },
+    { href: '/alerts', icon: Bell, label: 'Alertes', badge: true },
+    { href: '/goals', icon: Target, label: 'Objectifs' },
+    { href: '/settings', icon: Settings, label: 'Paramètres' },
 ];
 
 interface SidebarProps {
@@ -126,7 +126,7 @@ export function Sidebar({ open, onClose, collapsed = false, onToggleCollapse }: 
                 {/* Home selector — hidden when collapsed */}
                 {!collapsed && (
                     <div className="px-4 py-3 border-b border-black/5 dark:border-white/5">
-                        <p className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1.5">Active Home</p>
+                        <p className="text-[10px] uppercase tracking-widest text-zinc-400 dark:text-zinc-500 mb-1.5">Résidence active</p>
                         <select
                             value={selectedHomeId}
                             onChange={(e) => selectHome(e.target.value)}

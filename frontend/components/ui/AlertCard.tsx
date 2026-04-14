@@ -69,7 +69,7 @@ export function AlertCard({ alert, onRead, className }: AlertCardProps) {
                         onClick={() => onRead(alert.id)}
                         className="mt-2 text-[10px] text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors underline underline-offset-2"
                     >
-                        Mark as read
+                        Marquer comme lu
                     </button>
                 )}
             </div>

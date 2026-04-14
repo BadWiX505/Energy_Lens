@@ -6,11 +6,11 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Navbar } from '@/components/layout/Navbar';
 
 const PAGE_TITLES: Record<string, string> = {
-    '/': 'Dashboard',
-    '/insights': 'Insights',
-    '/alerts': 'Alerts',
-    '/goals': 'Goals & Gamification',
-    '/settings': 'Settings',
+    '/': 'Tableau de bord',
+    '/insights': 'Analyse',
+    '/alerts': 'Alertes',
+    '/goals': 'Objectifs & Gamification',
+    '/settings': 'Paramètres',
 };
 
 export function RootLayout({ children }: { children: React.ReactNode }) {

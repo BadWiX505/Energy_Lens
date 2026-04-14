@@ -20,7 +20,7 @@ export function ConnectionStatus({ connected, className }: ConnectionStatusProps
             )}
         >
             <span className={cn('w-1.5 h-1.5 rounded-full', connected ? 'bg-emerald-400 animate-pulse' : 'bg-red-400')} />
-            {connected ? <><Wifi className="w-3 h-3 opacity-80" /> Live</> : <><WifiOff className="w-3 h-3 opacity-80" /> Offline</>}
+            {connected ? <><Wifi className="w-3 h-3 opacity-80" /> En direct</> : <><WifiOff className="w-3 h-3 opacity-80" /> Hors ligne</>}
         </div>
     );
 }

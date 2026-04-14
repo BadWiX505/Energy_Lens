@@ -9,9 +9,9 @@ import { cn } from '@/lib/utils';
 import { useSettingsStore } from '@/store/settingsStore';
 
 const FILTERS: { label: string; value: string }[] = [
-    { label: 'All', value: 'all' },
-    { label: 'Critical', value: 'critical' },
-    { label: 'Warning', value: 'warning' },
+    { label: 'Tout', value: 'all' },
+    { label: 'Critique', value: 'critical' },
+    { label: 'Avertissement', value: 'warning' },
     { label: 'Info', value: 'info' },
 ];
 
@@ -65,14 +65,14 @@ export default function AlertsPage() {
                 <div>
                     <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                         <Bell className="w-5 h-5 text-violet-400" />
-                        Alerts
+                        Alertes
                         {unreadCount > 0 && (
                             <span className="ml-1 text-xs font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
-                                {unreadCount} new
+                                {unreadCount} nouvelle{unreadCount > 1 ? 's' : ''}
                             </span>
                         )}
                     </h2>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{alerts.length} total alerts</p>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">{alerts.length} alerte{alerts.length !== 1 ? 's' : ''} au total</p>
                 </div>
 
                 <div className="flex items-center gap-2">
@@ -97,7 +97,7 @@ export default function AlertsPage() {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-100 dark:bg-zinc-800 border border-black/5 dark:border-white/5 text-xs text-zinc-700 dark:text-zinc-300 hover:text-white hover:bg-zinc-700 transition-all"
                         >
                             <CheckCheck className="w-3.5 h-3.5" />
-                            Mark all read
+                            Tout marquer comme lu
                         </button>
                     )}
                     {alerts.length > 0 && (
@@ -107,7 +107,7 @@ export default function AlertsPage() {
                             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-200 dark:border-red-500/20 text-xs text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/20 disabled:opacity-50 transition-all"
                         >
                             <Trash2 className="w-3.5 h-3.5" />
-                            {clearing ? 'Clearing…' : 'Clear all'}
+                            {clearing ? 'Suppression…' : 'Tout effacer'}
                         </button>
                     )}
                 </div>
@@ -116,8 +116,8 @@ export default function AlertsPage() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-3">
                 {[
-                    { label: 'Critical', count: alerts.filter(a => a.severity === 'critical').length, color: ' bg-red-50 border-red-200 text-red-700 dark:text-red-400 dark:bg-red-500/10 dark:border-red-500/20' },
-                    { label: 'Warnings', count: alerts.filter(a => a.severity === 'warning').length, color: 'bg-amber-50 border-amber-200 text-amber-700  dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20' },
+                    { label: 'Critique', count: alerts.filter(a => a.severity === 'critical').length, color: ' bg-red-50 border-red-200 text-red-700 dark:text-red-400 dark:bg-red-500/10 dark:border-red-500/20' },
+                    { label: 'Avertissements', count: alerts.filter(a => a.severity === 'warning').length, color: 'bg-amber-50 border-amber-200 text-amber-700  dark:text-amber-400 dark:bg-amber-500/10 dark:border-amber-500/20' },
                     { label: 'Info', count: alerts.filter(a => a.severity === 'info').length, color: 'bg-blue-50 border-blue-200 text-blue-700  dark:text-blue-400 dark:bg-blue-500/10 dark:border-blue-500/20' },
                 ].map((s) => (
                     <div key={s.label} className={cn('rounded-2xl border p-4 text-center', s.color)}>
@@ -137,7 +137,7 @@ export default function AlertsPage() {
             ) : filtered.length === 0 ? (
                 <div className="text-center py-16">
                     <Bell className="w-10 h-10 text-zinc-600 mx-auto mb-3" />
-                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">No {filter !== 'all' ? filter : ''} alerts</p>
+                    <p className="text-zinc-500 dark:text-zinc-400 text-sm">Aucune alerte{filter !== 'all' ? ` de type ${filter}` : ''}</p>
                 </div>
             ) : (
                 <div className="space-y-2">

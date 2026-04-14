@@ -76,7 +76,7 @@ export function MetricCard({
                                     : 'bg-zinc-500/10 text-zinc-500 dark:text-zinc-400'
                         )}>
                             {change > 0 ? <TrendingUp className="w-3 h-3" /> : change < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
-                            {Math.abs(change)}% vs avg
+                            {Math.abs(change)}% vs moy.
                         </div>
                     )}
                 </div>

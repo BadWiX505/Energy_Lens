@@ -19,14 +19,14 @@ import { getSocket, isMockMode } from '@/lib/socket';
 // ── Reward store items (frontend-only, no backend) ───────────
 
 const REWARD_ITEMS = [
-    { id: 'r1', emoji: '🟢', name: 'Green Avatar Badge', description: 'Show off your eco-friendly profile badge', cost: 50, category: 'Profile' },
-    { id: 'r2', emoji: '👕', name: 'Energy Saver T-Shirt', description: 'Exclusive Energy Lens branded tee — shipped to your door', cost: 200, category: 'Merch' },
-    { id: 'r3', emoji: '💸', name: '5% Bill Discount', description: 'Redeem for a discount voucher on your next electricity bill', cost: 150, category: 'Discount' },
-    { id: 'r4', emoji: '🖼️', name: 'Eco Warrior Frame', description: 'Special profile picture border — stand out in the community', cost: 80, category: 'Profile' },
-    { id: 'r5', emoji: '🏷️', name: 'Partner Promo Code', description: 'Exclusive discount code from our energy-saving partners', cost: 120, category: 'Promo' },
-    { id: 'r6', emoji: '✨', name: 'Solar Sticker Pack', description: 'Fun digital sticker collection for your profile', cost: 40, category: 'Profile' },
-    { id: 'r7', emoji: '🔌', name: 'Smart Plug Voucher', description: '$10 off a smart plug at select partner stores', cost: 300, category: 'Discount' },
-    { id: 'r8', emoji: '🎨', name: 'Premium Theme', description: 'Unlock a custom dashboard color theme — dark or light', cost: 100, category: 'Profile' },
+    { id: 'r1', emoji: '🟢', name: 'Badge Avatar Vert', description: 'Affichez votre profil écologique sur votre compte', cost: 50, category: 'Profil' },
+    { id: 'r2', emoji: '👕', name: 'T-Shirt Energy Saver', description: 'T-shirt brandé Energy Lens en exclusivité — livraison à domicile', cost: 200, category: 'Merch' },
+    { id: 'r3', emoji: '💸', name: 'Réduction 5% sur facture', description: 'Échangez contre un bon de réduction sur votre prochaine facture d\'électricité', cost: 150, category: 'Réduction' },
+    { id: 'r4', emoji: '🖼️', name: 'Cadre Eco Warrior', description: 'Bordure spéciale pour votre photo de profil — démarquez-vous', cost: 80, category: 'Profil' },
+    { id: 'r5', emoji: '🏷️', name: 'Code Promo Partenaire', description: 'Code de réduction exclusif chez nos partenaires éco-énergétiques', cost: 120, category: 'Promo' },
+    { id: 'r6', emoji: '✨', name: 'Pack Stickers Solaires', description: 'Collection d\'autocollants numériques amusants pour votre profil', cost: 40, category: 'Profil' },
+    { id: 'r7', emoji: '🔌', name: 'Bon Prise Connectée', description: '10 MAD de réduction sur une prise intelligente dans nos boutiques partenaires', cost: 300, category: 'Réduction' },
+    { id: 'r8', emoji: '🎨', name: 'Thème Premium', description: 'Débloquez un thème personnalisé pour votre tableau de bord', cost: 100, category: 'Profil' },
 ];
 
 // ── Validation max values ────────────────────────────────────
@@ -111,7 +111,7 @@ function EfficiencyGauge({ score }: { score: number }) {
     const capped = Math.min(score, 500);
     const pct = Math.min((capped / 500) * 100, 100);
     const color = pct >= 80 ? '#10b981' : pct >= 50 ? '#f59e0b' : '#6366f1';
-    const label = pct >= 80 ? 'Excellent' : pct >= 50 ? 'Good' : 'Growing';
+    const label = pct >= 80 ? 'Excellent' : pct >= 50 ? 'Bien' : 'En progression';
     return (
         <div className="flex flex-col items-center py-4">
             <div className="relative w-36 h-36">
@@ -127,7 +127,7 @@ function EfficiencyGauge({ score }: { score: number }) {
                 </div>
             </div>
             <p className="text-sm font-semibold mt-2" style={{ color }}>{label}</p>
-            <p className="text-[11px] text-zinc-400 mt-1">Total Score</p>
+            <p className="text-[11px] text-zinc-400 mt-1">Score total</p>
         </div>
     );
 }
@@ -142,8 +142,8 @@ function AddGoalModal({ homeId, onClose, onAdd }: AddGoalModalProps) {
     );
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
-    const metricUnits: Record<GoalMetric, string> = { energy: 'kWh', cost: 'currency', power: 'W' };
-    const periodLabel: Record<GoalPeriod, string> = { daily: 'day(s)', weekly: 'week(s)', monthly: 'month(s)' };
+    const metricUnits: Record<GoalMetric, string> = { energy: 'kWh', cost: 'devise', power: 'W' };
+    const periodLabel: Record<GoalPeriod, string> = { daily: 'jour(s)', weekly: 'semaine(s)', monthly: 'mois' };
 
     const computedEndDate = (() => {
         const d = parseInt(form.duration, 10);
@@ -158,16 +158,16 @@ function AddGoalModal({ homeId, onClose, onAdd }: AddGoalModalProps) {
         const val = Number(form.target);
         const dur = Number(form.duration);
         const max = MAX_TARGETS[form.period][form.metric];
-        if (val <= 0) { setError('Target must be greater than 0'); return; }
-        if (val > max) { setError(`Max for ${form.period} ${form.metric}: ${max.toLocaleString()}`); return; }
-        if (dur < 1 || dur > 365) { setError('Duration must be between 1 and 365'); return; }
+        if (val <= 0) { setError('La cible doit être supérieure à 0'); return; }
+        if (val > max) { setError(`Maximum pour ${form.period} ${form.metric} : ${max.toLocaleString('fr-FR')}`); return; }
+        if (dur < 1 || dur > 365) { setError('La durée doit être comprise entre 1 et 365'); return; }
         setLoading(true);
         try {
             const goal = await postGoal({ homeId, type: form.period, targetValue: val, targetMetric: form.metric, duration: dur, label: form.label || undefined });
             onAdd(goal);
             onClose();
         } catch (err) {
-            setError(err instanceof Error ? err.message : 'Failed to create goal');
+            setError(err instanceof Error ? err.message : 'Échec de la création de l’objectif');
         } finally { setLoading(false); }
     };
 
@@ -176,47 +176,47 @@ function AddGoalModal({ homeId, onClose, onAdd }: AddGoalModalProps) {
             <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
             <div className="relative z-10 w-full max-w-md bg-white dark:bg-zinc-900 rounded-2xl border border-black/10 dark:border-white/10 shadow-2xl p-6">
                 <div className="flex items-center justify-between mb-5">
-                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Add New Goal</h3>
+                    <h3 className="text-sm font-semibold text-zinc-900 dark:text-white">Nouvel objectif</h3>
                     <button onClick={onClose} className="text-zinc-400 hover:text-zinc-700 dark:hover:text-white"><X className="w-4 h-4" /></button>
                 </div>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="text-[11px] text-zinc-500 mb-1 block">Label (optional)</label>
+                        <label className="text-[11px] text-zinc-500 mb-1 block">Libellé (optionnel)</label>
                         <input value={form.label} onChange={(e) => setForm(f => ({ ...f, label: e.target.value }))}
-                            placeholder="e.g. Keep daily usage under 10 kWh"
+                            placeholder="Ex. : Rester sous 10 kWh par jour"
                             className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 focus:outline-none focus:ring-1 focus:ring-violet-500" />
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
-                            <label className="text-[11px] text-zinc-500 mb-1 block">Metric</label>
+                            <label className="text-[11px] text-zinc-500 mb-1 block">Indicateur</label>
                             <select value={form.metric} onChange={(e) => setForm(f => ({ ...f, metric: e.target.value as GoalMetric }))}
                                 className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500">
-                                <option value="energy">Energy (kWh)</option>
-                                <option value="cost">Cost (currency)</option>
-                                <option value="power">Power (W)</option>
+                                <option value="energy">Énergie (kWh)</option>
+                                <option value="cost">Coût (devise)</option>
+                                <option value="power">Puissance (W)</option>
                             </select>
                         </div>
                         <div>
-                            <label className="text-[11px] text-zinc-500 mb-1 block">Period type</label>
+                            <label className="text-[11px] text-zinc-500 mb-1 block">Période</label>
                             <select value={form.period} onChange={(e) => setForm(f => ({ ...f, period: e.target.value as GoalPeriod }))}
                                 className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500">
-                                <option value="daily">Daily</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="monthly">Monthly</option>
+                                <option value="daily">Quotidien</option>
+                                <option value="weekly">Hebdomadaire</option>
+                                <option value="monthly">Mensuel</option>
                             </select>
                         </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="text-[11px] text-zinc-500 mb-1 block">
-                                Target ({metricUnits[form.metric]}) — max {MAX_TARGETS[form.period][form.metric].toLocaleString()}
+                                Cible ({metricUnits[form.metric]}) — max {MAX_TARGETS[form.period][form.metric].toLocaleString('fr-FR')}
                             </label>
                             <input type="number" min={1} max={MAX_TARGETS[form.period][form.metric]} required
                                 value={form.target} onChange={(e) => setForm(f => ({ ...f, target: e.target.value }))}
                                 className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500" />
                         </div>
                         <div>
-                            <label className="text-[11px] text-zinc-500 mb-1 block">Duration ({periodLabel[form.period]})</label>
+                            <label className="text-[11px] text-zinc-500 mb-1 block">Durée ({periodLabel[form.period]})</label>
                             <input type="number" min={1} max={365} required
                                 value={form.duration} onChange={(e) => setForm(f => ({ ...f, duration: e.target.value }))}
                                 className="w-full bg-zinc-100 dark:bg-zinc-800 border border-black/10 dark:border-white/10 rounded-xl px-3 py-2 text-sm text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500" />
@@ -225,14 +225,14 @@ function AddGoalModal({ homeId, onClose, onAdd }: AddGoalModalProps) {
                     {computedEndDate && (
                         <p className="text-[11px] text-zinc-400 flex items-center gap-1.5">
                             <Calendar className="w-3 h-3 text-violet-400" />
-                            Goal ends: <span className="font-semibold text-zinc-600 dark:text-zinc-300">{computedEndDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                            Fin de l’objectif : <span className="font-semibold text-zinc-600 dark:text-zinc-300">{computedEndDate.toLocaleDateString('fr-FR', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                         </p>
                     )}
                     {error && <p className="text-[11px] text-red-400">{error}</p>}
                     <div className="flex gap-2 pt-1">
-                        <button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl border border-black/10 dark:border-white/10 text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">Cancel</button>
+                        <button type="button" onClick={onClose} className="flex-1 py-2 rounded-xl border border-black/10 dark:border-white/10 text-xs text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors">Annuler</button>
                         <button type="submit" disabled={loading} className="flex-1 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-xs text-white font-semibold transition-colors shadow-lg shadow-violet-500/20">
-                            {loading ? 'Saving\u2026' : 'Add Goal'}
+                            {loading ? 'Sauvegarde…' : 'Ajouter'}
                         </button>
                     </div>
                 </form>
@@ -244,13 +244,13 @@ function AddGoalModal({ homeId, onClose, onAdd }: AddGoalModalProps) {
 // ── Score History ─────────────────────────────────────────────
 
 function ScoreHistoryBox({ scores }: { scores: EnergyScore[] }) {
-    if (scores.length === 0) return <p className="text-xs text-zinc-500 text-center py-4">No score history yet. Complete goals to earn points!</p>;
+    if (scores.length === 0) return <p className="text-xs text-zinc-500 text-center py-4">Pas encore d’historique. Atteignez vos objectifs pour gagner des points !</p>;
     return (
         <div className="space-y-1.5 max-h-52 overflow-y-auto pr-1">
             {scores.map((s) => {
                 const dt = new Date(s.date);
-                const dateStr = isNaN(dt.getTime()) ? '' : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                const reason = s.label ?? (s.type === 'achievement' ? 'Achievement unlocked' : 'Goal completed');
+                const dateStr = isNaN(dt.getTime()) ? '' : dt.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric' });
+                const reason = s.label ?? (s.type === 'achievement' ? 'Succès débloqué' : 'Objectif atteint');
                 return (
                     <div key={s.id} className="flex items-center justify-between text-xs px-3 py-2 rounded-xl bg-zinc-100 dark:bg-zinc-800/60">
                         <div className="flex items-center gap-2 min-w-0">
@@ -275,15 +275,15 @@ function CommunityComparisonCard({ yourScore, avgScore, topScore, totalHomes, yo
 }) {
     const maxBar = Math.max(topScore, 1);
     const bars = [
-        { label: 'You', value: yourScore, color: 'bg-violet-500' },
-        { label: 'Average', value: avgScore, color: 'bg-zinc-400' },
+        { label: 'Vous', value: yourScore, color: 'bg-violet-500' },
+        { label: 'Moyenne', value: avgScore, color: 'bg-zinc-400' },
         { label: 'Top', value: topScore, color: 'bg-amber-400' },
     ];
     return (
         <div className="space-y-3">
             <div className="flex items-center gap-1.5 text-[11px] text-zinc-500">
                 <Users className="w-3 h-3" />
-                <span>Among {totalHomes} home{totalHomes !== 1 ? 's' : ''} &middot; You beat {yourPercentile}% of users</span>
+                <span>Parmi {totalHomes} résidence{totalHomes !== 1 ? 's' : ''} · Vous dépassez {yourPercentile} % des utilisateurs</span>
             </div>
             <div className="space-y-2">
                 {bars.map((b) => (
@@ -330,12 +330,12 @@ function CelebrationPopup({ newScores, newAchievements, onDismiss }: {
             </div>
             <div className="relative z-10 w-full max-w-sm bg-white dark:bg-zinc-900 rounded-2xl border border-violet-500/30 shadow-2xl shadow-violet-500/20 p-6 text-center">
                 <div className="text-4xl mb-2">🎉</div>
-                <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-1">+{totalPts} Points Earned!</h3>
-                <p className="text-xs text-zinc-500 mb-4">Keep up the great work on your energy goals!</p>
+                <h3 className="text-lg font-black text-zinc-900 dark:text-white mb-1">+{totalPts} Points gagnés !</h3>
+                <p className="text-xs text-zinc-500 mb-4">Continuez sur cette lancée pour vos objectifs énergétiques !</p>
                 <div className="space-y-1">
                     {newScores.map(s => (
                         <div key={s.id} className="flex items-center justify-between text-xs bg-violet-500/10 rounded-xl px-3 py-2">
-                            <span className="flex items-center gap-1.5 text-violet-700 dark:text-violet-300"><Target className="w-3 h-3" /> Goal Completed</span>
+                            <span className="flex items-center gap-1.5 text-violet-700 dark:text-violet-300"><Target className="w-3 h-3" /> Objectif atteint</span>
                             <span className="font-bold text-violet-600 dark:text-violet-400">+{s.score} pts</span>
                         </div>
                     ))}
@@ -347,7 +347,7 @@ function CelebrationPopup({ newScores, newAchievements, onDismiss }: {
                     ))}
                 </div>
                 <button onClick={handleDismiss} className="mt-4 w-full py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-sm text-white font-semibold transition-colors">
-                    <Check className="w-4 h-4 inline mr-1.5" /> Got it!
+                    <Check className="w-4 h-4 inline mr-1.5" /> Compris !
                 </button>
             </div>
             <style>{`
@@ -372,8 +372,8 @@ function RewardStoreDialog({ totalScore, onClose }: { totalScore: number; onClos
                     <div className="flex items-center gap-2.5">
                         <ShoppingBag className="w-5 h-5 text-violet-400" />
                         <div>
-                            <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Reward Store</h3>
-                            <p className="text-[11px] text-zinc-500">Your balance: <span className="font-bold text-violet-600 dark:text-violet-400">{totalScore} pts</span></p>
+                            <h3 className="text-sm font-bold text-zinc-900 dark:text-white">Boutique de récompenses</h3>
+                            <p className="text-[11px] text-zinc-500">Votre solde : <span className="font-bold text-violet-600 dark:text-violet-400">{totalScore} pts</span></p>
                         </div>
                     </div>
                     <button onClick={onClose} className="text-zinc-400 hover:text-zinc-700 dark:hover:text-white"><X className="w-4 h-4" /></button>
@@ -404,7 +404,7 @@ function RewardStoreDialog({ totalScore, onClose }: { totalScore: number; onClos
                                             isRedeemed ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400'
                                                 : canAfford ? 'bg-violet-600 hover:bg-violet-500 text-white'
                                                     : 'bg-zinc-200 dark:bg-zinc-700 text-zinc-400 cursor-not-allowed')}>
-                                        {isRedeemed ? '\u2713 Coming soon!' : canAfford ? 'Redeem' : 'Not enough'}
+                                        {isRedeemed ? '\u2713 Bientôt disponible !' : canAfford ? 'Utiliser' : 'Solde insuffisant'}
                                     </button>
                                 </div>
                             </div>
@@ -412,7 +412,7 @@ function RewardStoreDialog({ totalScore, onClose }: { totalScore: number; onClos
                     })}
                 </div>
                 <div className="px-5 py-3 bg-zinc-50 dark:bg-zinc-800/50 text-center">
-                    <p className="text-[11px] text-zinc-400">\ud83d\ude80 Full reward redemption coming in a future update!</p>
+                    <p className="text-[11px] text-zinc-400">\ud83d\ude80 Échange complet de récompenses bientôt disponible !</p>
                 </div>
             </div>
         </div>
@@ -424,13 +424,13 @@ function RewardStoreDialog({ totalScore, onClose }: { totalScore: number; onClos
 function GoalCard({ goal, onDelete }: { goal: Goal; onDelete: (id: string) => void }) {
     const pct = calcProgress(goal.current, goal.target);
     const endDate = new Date(goal.endDate);
-    const endStr = isNaN(endDate.getTime()) ? '' : endDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    const endStr = isNaN(endDate.getTime()) ? '' : endDate.toLocaleDateString('fr-FR', { month: 'short', day: 'numeric', year: 'numeric' });
     const dr = goal.daysRemaining;
 
     const statusInfo = {
-        achieved: { label: '\u2713 Achieved', cls: 'bg-emerald-500/20 text-emerald-500' },
-        missed:   { label: '\u2715 Missed',   cls: 'bg-red-500/20 text-red-400' },
-        active:   { label: 'Active',           cls: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500' },
+        achieved: { label: '\u2713 Atteint',  cls: 'bg-emerald-500/20 text-emerald-500' },
+        missed:   { label: '\u2715 Manqué',   cls: 'bg-red-500/20 text-red-400' },
+        active:   { label: 'Actif',           cls: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500' },
     }[goal.status ?? 'active'] ?? { label: 'Active', cls: 'bg-zinc-100 dark:bg-zinc-800 text-zinc-500' };
 
     const borderCls = goal.status === 'achieved' ? 'border-emerald-500/20 bg-emerald-500/5'
@@ -581,7 +581,7 @@ export default function GoalsPage() {
     if (!selectedHomeId) {
         return (
             <div className="flex items-center justify-center h-64">
-                <p className="text-sm text-zinc-500">Please select a home from Settings to view goals.</p>
+                <p className="text-sm text-zinc-500">Veuillez sélectionner une résidence depuis les Paramètres pour afficher vos objectifs.</p>
             </div>
         );
     }
@@ -596,18 +596,18 @@ export default function GoalsPage() {
                 <div>
                     <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                         <Target className="w-5 h-5 text-violet-400" />
-                        Goals &amp; Gamification
+                        Objectifs &amp; Gamification
                     </h2>
-                    <p className="text-xs text-zinc-500">Track your energy goals and earn achievements</p>
+                    <p className="text-xs text-zinc-500">Suivez vos objectifs énergétiques et remportez des succès</p>
                 </div>
                 <div className="flex items-center gap-2">
                     <button onClick={() => setShowRewardStore(true)}
                         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-violet-500/30 text-xs text-violet-600 dark:text-violet-400 font-semibold hover:bg-violet-500/10 transition-all">
-                        <ShoppingBag className="w-3.5 h-3.5" /> Reward Store
+                        <ShoppingBag className="w-3.5 h-3.5" /> Boutique
                     </button>
                     <button onClick={() => setShowAddModal(true)}
                         className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-violet-600 hover:bg-violet-500 text-xs text-white font-semibold transition-all shadow-lg shadow-violet-500/20">
-                        <Plus className="w-3.5 h-3.5" /> New Goal
+                        <Plus className="w-3.5 h-3.5" /> Nouvel objectif
                     </button>
                 </div>
             </div>
@@ -619,12 +619,12 @@ export default function GoalsPage() {
                 <div className="xl:col-span-2 space-y-4">
                     {/* Goals */}
                     <div>
-                        <h3 className="text-xs uppercase tracking-wider text-zinc-400 font-semibold mb-2">Your Goals</h3>
+                        <h3 className="text-xs uppercase tracking-wider text-zinc-400 font-semibold mb-2">Vos objectifs</h3>
                         {goals.length === 0 ? (
                             <div className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-zinc-900/80 p-8 text-center">
                                 <Target className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
-                                <p className="text-sm text-zinc-500">No goals yet.</p>
-                                <p className="text-xs text-zinc-600 mt-1">Add a goal and track your energy over a custom window.</p>
+                                <p className="text-sm text-zinc-500">Aucun objectif pour l’instant.</p>
+                                <p className="text-xs text-zinc-600 mt-1">Ajoutez un objectif et suivez votre consommation.</p>
                             </div>
                         ) : (
                             <div className="space-y-3">
@@ -637,9 +637,9 @@ export default function GoalsPage() {
 
                     {/* Achievements */}
                     <div>
-                        <h3 className="text-xs uppercase tracking-wider text-zinc-400 font-semibold mb-2 pt-1">Achievements</h3>
+                        <h3 className="text-xs uppercase tracking-wider text-zinc-400 font-semibold mb-2 pt-1">Succès</h3>
                         {achievements.length === 0 ? (
-                            <p className="text-xs text-zinc-500 text-center py-4">Loading achievements\u2026</p>
+                            <p className="text-xs text-zinc-500 text-center py-4">Chargement des succès…</p>
                         ) : (
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {achievements.map((ach) => {
@@ -671,28 +671,28 @@ export default function GoalsPage() {
 
                 {/* Right sidebar */}
                 <div className="space-y-4">
-                    <ChartCard title="Your Score">
+                    <ChartCard title="Votre Score">
                         <EfficiencyGauge score={totalScore} />
                     </ChartCard>
 
                     <div className="rounded-2xl border border-violet-500/20 bg-gradient-to-br from-violet-900/20 to-indigo-900/10 p-5">
                         <div className="flex items-center gap-2 mb-1">
                             <Zap className="w-4 h-4 text-violet-400" />
-                            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Total Points</p>
+                            <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100">Points Totaux</p>
                         </div>
                         <p className="text-4xl font-black text-violet-600 dark:text-violet-300">{totalScore}</p>
                         <div className="mt-3 text-[11px] text-zinc-500 space-y-1">
-                            <p> {achievements.filter(a => a.unlocked).length} / {achievements.length} achievements</p>
-                            <p> {goals.length} goal{goals.length !== 1 ? 's' : ''} tracked</p>
+                            <p> {achievements.filter(a => a.unlocked).length} / {achievements.length} succès</p>
+                            <p> {goals.length} objectif{goals.length !== 1 ? 's' : ''} suivi{goals.length !== 1 ? 's' : ''}</p>
                         </div>
                     </div>
 
-                    <ChartCard title="Score History">
+                    <ChartCard title="Historique des scores">
                         <ScoreHistoryBox scores={energyScores} />
                     </ChartCard>
 
                     {communityStats && (
-                        <ChartCard title="Community Ranking">
+                        <ChartCard title="Classement communautaire">
                             <div className="pt-1">
                                 <CommunityComparisonCard {...communityStats} />
                             </div>

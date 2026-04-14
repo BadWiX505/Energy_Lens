@@ -28,7 +28,7 @@ export default function InsightsPage() {
         return (
             <div className="flex h-[60vh] w-full flex-col items-center justify-center gap-3 text-center">
                 <MonitorSpeaker className="h-10 w-10 text-zinc-300 dark:text-zinc-600" />
-                <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Select a device to view appliance insights</p>
+                <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400">Sélectionnez un appareil pour afficher l’analyse des équipements</p>
             </div>
         );
     }
@@ -55,17 +55,17 @@ export default function InsightsPage() {
             <div>
                 <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100 flex items-center gap-2">
                     <Cpu className="w-5 h-5 text-violet-400" />
-                    Appliance Insights
+                    Analyse des Équipements
                 </h2>
-                <p className="text-xs text-zinc-500 dark:text-zinc-400">(NILM) — Detected appliances and estimated consumption</p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">(NILM) — Équipements détectés et consommation estimée</p>
             </div>
 
             {/* Summary bar */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                 {[
-                    { label: 'Devices Detected', value: appliances.length, unit: '' },
-                    { label: 'Daily Total', value: totalKwh.toFixed(1), unit: 'kWh' },
-                    { label: 'Est. Monthly', value: (totalKwh * 30).toFixed(0), unit: 'kWh' },
+                    { label: 'Équipements détectés', value: appliances.length, unit: '' },
+                    { label: 'Total quotidien', value: totalKwh.toFixed(1), unit: 'kWh' },
+                    { label: 'Est. mensuel', value: (totalKwh * 30).toFixed(0), unit: 'kWh' },
                 ].map((s) => (
                     <div key={s.label} className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-zinc-900/80 p-4">
                         <p className="text-[10px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{s.label}</p>
@@ -109,9 +109,9 @@ export default function InsightsPage() {
                                     {/* Stats row */}
                                     <div className="grid grid-cols-3 gap-2 pt-3 border-t border-black/5 dark:border-white/5">
                                         {[
-                                            { label: 'Today Use', value: `${appliance.dailyHours}h` },
-                                            { label: 'Today kWh', value: `${appliance.dailyKwh}` },
-                                            { label: 'Monthly', value: `${(appliance.dailyKwh * 30).toFixed(0)} kWh` },
+                                            { label: 'Durée du jour', value: `${appliance.dailyHours}h` },
+                                            { label: 'kWh du jour', value: `${appliance.dailyKwh}` },
+                                            { label: 'Mensuel', value: `${(appliance.dailyKwh * 30).toFixed(0)} kWh` },
                                         ].map((s) => (
                                             <div key={s.label} className="text-center">
                                                 <p className="text-[9px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{s.label}</p>
@@ -135,16 +135,16 @@ export default function InsightsPage() {
 
                 {/* Pie chart */}
                 <div>
-                    <ChartCard title="Consumption Share" subtitle="By appliance category">
+                    <ChartCard title="Répartition de la consommation" subtitle="Par catégorie d’équipement">
                         <EnergyPieChart data={pieData} height={320} />
                     </ChartCard>
                     <div className="mt-3 rounded-2xl border border-emerald-500/10 bg-emerald-500/5 p-4">
                         <div className="flex gap-2">
                             <Leaf className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                             <div>
-                                <p className="text-xs font-semibold text-emerald-300">Biggest Saving Opportunity</p>
+                                <p className="text-xs font-semibold text-emerald-300">Plus grande opportunité d’économie</p>
                                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-1">
-                                    Reducing <strong className="text-zinc-800 dark:text-zinc-200">HVAC usage by 1 hour/day</strong> could save ~<strong className="text-emerald-300">$8.10/month</strong>
+                                    Réduire l’usage de la <strong className="text-zinc-800 dark:text-zinc-200">climatisation de 1 h/jour</strong> pourrait économiser ~<strong className="text-emerald-300">67 MAD/mois</strong>
                                 </p>
                             </div>
                         </div>

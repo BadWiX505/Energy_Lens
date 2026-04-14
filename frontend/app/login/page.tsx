@@ -28,14 +28,14 @@ export default function LoginPage() {
                 // Signup on this backend doesn't return a token, so we switch to login
                 setIsSignUp(false);
                 setPassword('');
-                setError('Account created successfully! Please sign in.');
+                setError('Compte créé avec succès ! Veuillez vous connecter.');
             } else {
                 const data = await loginApi(email, password);
                 setAuth(data.user, data.token);
                 router.push('/');
             }
         } catch (err: any) {
-            setError(err.message || 'An error occurred during authentication');
+            setError(err.message || 'Une erreur est survenue lors de l’authentification');
         } finally {
             setIsLoading(false);
         }
@@ -58,7 +58,7 @@ export default function LoginPage() {
                         EnergyLens
                     </h1>
                     <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
-                        {isSignUp ? 'Create your account to get started' : 'Welcome back to your dashboard'}
+                        {isSignUp ? 'Créez votre compte pour commencer' : 'Bon retour sur votre tableau de bord'}
                     </p>
                 </div>
 
@@ -70,7 +70,7 @@ export default function LoginPage() {
                                 ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400 border border-emerald-500/20'
                                 : 'bg-rose-50 text-rose-600 dark:bg-rose-500/10 dark:text-rose-400 border border-rose-500/20'
                             }`}>
-                            {error.includes('successfully') ? null : <AlertCircle className="w-4 h-4 shrink-0" />}
+                            {error.includes('succ') ? null : <AlertCircle className="w-4 h-4 shrink-0" />}
                             <p>{error}</p>
                         </div>
                     )}
@@ -78,7 +78,7 @@ export default function LoginPage() {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         {isSignUp && (
                             <div className="space-y-1">
-                                <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Full Name</label>
+                                <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Nom complet</label>
                                 <div className="relative">
                                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                         <UserIcon className="h-4 w-4 text-zinc-400" />
@@ -89,14 +89,14 @@ export default function LoginPage() {
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
                                         className="block w-full pl-10 pr-3 py-2 border border-black/10 dark:border-white/10 rounded-xl bg-zinc-50 dark:bg-zinc-800/50 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50 focus:border-violet-500 transition-all"
-                                        placeholder="John Doe"
+                                        placeholder="Jean Dupont"
                                     />
                                 </div>
                             </div>
                         )}
 
                         <div className="space-y-1">
-                            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Email Address</label>
+                            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Adresse e-mail</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Mail className="h-4 w-4 text-zinc-400" />
@@ -113,7 +113,7 @@ export default function LoginPage() {
                         </div>
 
                         <div className="space-y-1">
-                            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Password</label>
+                            <label className="text-xs font-semibold uppercase text-zinc-500 dark:text-zinc-400">Mot de passe</label>
                             <div className="relative">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Lock className="h-4 w-4 text-zinc-400" />
@@ -138,7 +138,7 @@ export default function LoginPage() {
                                 <Loader2 className="w-4 h-4 animate-spin" />
                             ) : (
                                 <>
-                                    {isSignUp ? 'Create Account' : 'Sign In'}
+                                    {isSignUp ? 'Créer un compte' : 'Se connecter'}
                                     <ArrowRight className="w-4 h-4" />
                                 </>
                             )}
@@ -147,13 +147,13 @@ export default function LoginPage() {
 
                     <div className="mt-6 text-center">
                         <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                            {isSignUp ? 'Already have an account?' : 'Don\'t have an account?'}
+                            {isSignUp ? 'Vous avez déjà un compte ?' : "Pas encore de compte ?"}
                             <button
                                 type="button"
                                 onClick={toggleMode}
                                 className="ml-1 text-violet-600 dark:text-violet-400 font-semibold hover:underline"
                             >
-                                {isSignUp ? 'Sign In' : 'Sign Up'}
+                                {isSignUp ? 'Se connecter' : 'S’inscrire'}
                             </button>
                         </p>
                     </div>

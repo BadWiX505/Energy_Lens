@@ -194,13 +194,13 @@ export default function HomesPage() {
     };
 
     const handleDisassociateDevice = async (homeId: string, deviceId: string) => {
-        if (!confirm('Disassociate this device from this home?')) return;
+        if (!confirm('Dissocier cet appareil de cette résidence ?')) return;
         setDeviceError('');
         try {
             await disassociateDeviceApi(deviceId, homeId);
             removeDevice(homeId, deviceId);
         } catch (err: any) {
-            setDeviceError(err?.message || 'Failed to disassociate device');
+            setDeviceError(err?.message || 'Impossible de dissocier l’appareil');
         }
     };
 
@@ -236,7 +236,7 @@ export default function HomesPage() {
     };
 
     const handleDeleteHome = async (id: string) => {
-        if (!confirm('Are you sure you want to delete this home?')) return;
+        if (!confirm('Êtes-vous sûr de vouloir supprimer cette résidence ?')) return;
         setHomesError('');
         try {
             await deleteHomeApi(id);
@@ -250,15 +250,15 @@ export default function HomesPage() {
         <div className="space-y-6 pb-8">
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                    <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Homes & Devices</h2>
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Manage your monitored properties and connected appliances.</p>
+                    <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Résidences &amp; Appareils</h2>
+                    <p className="text-xs text-zinc-500 dark:text-zinc-400">Gérez vos propriétés surveillées et vos équipements connectés.</p>
                 </div>
                 <button
                     onClick={() => setIsAddingHome(true)}
                     className="flex items-center gap-2 px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded-xl text-xs font-semibold transition-all shadow-lg shadow-violet-500/20"
                 >
                     <Plus className="w-4 h-4" />
-                    Add Home
+                    Ajouter une résidence
                 </button>
             </div>
 
@@ -279,28 +279,28 @@ export default function HomesPage() {
                 <div className="bg-white dark:bg-zinc-900 border border-violet-500/20 rounded-2xl p-5 shadow-xl shadow-black/5 dark:shadow-black/20">
                     <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100 mb-4 flex items-center gap-2">
                         <HomeIcon className="w-4 h-4 text-violet-500" />
-                        Register New Home
+                        Enregistrer une nouvelle résidence
                     </h3>
                     <form onSubmit={handleAddHome} className="flex flex-col sm:flex-row gap-3 items-end">
                         <div className="w-full sm:flex-1 space-y-1">
-                            <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Home Name</label>
+                            <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Nom de la résidence</label>
                             <input
                                 type="text"
                                 required
                                 value={newHomeName}
                                 onChange={(e) => setNewHomeName(e.target.value)}
-                                placeholder="e.g. Summer House"
+                                placeholder="Ex. : Maison de vacances"
                                 className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
                             />
                         </div>
                         <div className="w-full sm:flex-1 space-y-1">
-                            <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Location</label>
+                            <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Lieu</label>
                             <input
                                 type="text"
                                 required
                                 value={newHomeLocation}
                                 onChange={(e) => setNewHomeLocation(e.target.value)}
-                                placeholder="e.g. Malibu, CA"
+                                placeholder="Ex. : Casablanca, Maroc"
                                 className="w-full px-3 py-2 border border-black/10 dark:border-white/10 rounded-xl bg-zinc-50 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 text-sm focus:outline-none focus:ring-1 focus:ring-violet-500"
                             />
                         </div>
@@ -310,14 +310,14 @@ export default function HomesPage() {
                                 onClick={() => setIsAddingHome(false)}
                                 className="px-4 py-2 border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex-1 sm:flex-none"
                             >
-                                Cancel
+                                Annuler
                             </button>
                             <button
                                 type="submit"
                                 disabled={savingHome}
                                 className="px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition-colors flex-1 sm:flex-none"
                             >
-                                {savingHome ? 'Saving…' : 'Save Home'}
+                                {savingHome ? 'Sauvegarde…' : 'Enregistrer'}
                             </button>
                         </div>
                     </form>
@@ -331,8 +331,8 @@ export default function HomesPage() {
                     <div className="relative w-full max-w-lg bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden">
                         <div className="p-5 border-b border-black/5 dark:border-white/5 flex items-start justify-between">
                             <div>
-                                <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Edit Home</h3>
-                                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Update the home details synced with your backend.</p>
+                                <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Modifier la résidence</h3>
+                                <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">Mettez à jour les informations de la résidence.</p>
                             </div>
                             <button
                                 onClick={() => setEditingHomeId(null)}
@@ -344,7 +344,7 @@ export default function HomesPage() {
                         </div>
                         <form onSubmit={handleSaveEditHome} className="p-5 space-y-4">
                             <div className="space-y-1">
-                                <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Home Name</label>
+                                <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Nom de la résidence</label>
                                 <input
                                     type="text"
                                     required
@@ -354,7 +354,7 @@ export default function HomesPage() {
                                 />
                             </div>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Location</label>
+                                <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Lieu</label>
                                 <input
                                     type="text"
                                     value={editHomeLocation}
@@ -368,14 +368,14 @@ export default function HomesPage() {
                                     onClick={() => setEditingHomeId(null)}
                                     className="px-4 py-2 border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                 >
-                                    Cancel
+                                    Annuler
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={savingHome}
                                     className="px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition-colors"
                                 >
-                                    {savingHome ? 'Saving…' : 'Save Changes'}
+                                    {savingHome ? 'Sauvegarde…' : 'Enregistrer'}
                                 </button>
                             </div>
                         </form>
@@ -390,9 +390,9 @@ export default function HomesPage() {
                     <div className="relative w-full max-w-lg bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-3xl shadow-2xl overflow-hidden">
                         <div className="p-5 border-b border-black/5 dark:border-white/5 flex items-start justify-between">
                             <div>
-                                <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Edit device</h3>
+                                <h3 className="text-sm font-bold text-zinc-900 dark:text-zinc-100">Modifier l’appareil</h3>
                                 <p className="text-[11px] text-zinc-500 dark:text-zinc-400 mt-0.5">
-                                    Update the display name (backend: UpdateDeviceDto).
+                                    Modifiez le nom d’affichage de l’appareil.
                                 </p>
                             </div>
                             <button
@@ -409,7 +409,7 @@ export default function HomesPage() {
                                 ID: {editingDeviceMeta.device.id}
                             </p>
                             <div className="space-y-1">
-                                <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Name</label>
+                                <label className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">Nom</label>
                                 <input
                                     type="text"
                                     required
@@ -424,14 +424,14 @@ export default function HomesPage() {
                                     onClick={() => setEditingDevice(null)}
                                     className="px-4 py-2 border border-black/10 dark:border-white/10 text-zinc-600 dark:text-zinc-300 rounded-xl text-xs font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                                 >
-                                    Cancel
+                                    Annuler
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={savingDevice}
                                     className="px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition-colors"
                                 >
-                                    {savingDevice ? 'Saving…' : 'Save'}
+                                    {savingDevice ? 'Sauvegarde…' : 'Enregistrer'}
                                 </button>
                             </div>
                         </form>
@@ -444,7 +444,7 @@ export default function HomesPage() {
                 {loadingHomes && homes.length === 0 ? (
                     <div className="col-span-full bg-white dark:bg-zinc-900 border border-black/5 dark:border-white/5 rounded-3xl p-10 text-center">
                         <div className="w-8 h-8 mx-auto rounded-full border-4 border-violet-500 border-t-transparent animate-spin" />
-                        <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">Loading homes…</p>
+                        <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">Chargement des résidences…</p>
                     </div>
                 ) : (
                     homes.map((home) => (
@@ -487,18 +487,18 @@ export default function HomesPage() {
                             <div className="flex items-center justify-between mb-4">
                                 <h4 className="text-xs font-semibold text-zinc-800 dark:text-zinc-200 flex items-center gap-1.5">
                                     <Cpu className="w-3.5 h-3.5 text-zinc-400" />
-                                    Connected Devices
+                                    Appareils connectés
                                 </h4>
                                 <button
                                     onClick={() => setAddingDeviceToHomeId(home.id)}
                                     className="text-[10px] font-bold text-violet-600 dark:text-violet-400 bg-violet-50 dark:bg-violet-500/10 px-2.5 py-1 rounded-lg hover:bg-violet-100 dark:hover:bg-violet-500/20 transition-colors"
                                 >
-                                    + Associate device
+                                    + Associer un appareil
                                 </button>
                             </div>
 
                             {loadingDevices && (
-                                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-2">Loading devices…</p>
+                                <p className="text-[10px] text-zinc-500 dark:text-zinc-400 mb-2">Chargement des appareils…</p>
                             )}
 
                             {/* Associate device (existing hardware id + name) */}
@@ -510,7 +510,7 @@ export default function HomesPage() {
                                             required
                                             value={newDeviceExternalId}
                                             onChange={(e) => setNewDeviceExternalId(e.target.value)}
-                                            placeholder="Device ID (existing in system)"
+                                            placeholder="Identifiant de l’appareil (existant dans le système)"
                                             className="w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500 font-mono"
                                         />
                                         <input
@@ -518,7 +518,7 @@ export default function HomesPage() {
                                             required
                                             value={newDeviceName}
                                             onChange={(e) => setNewDeviceName(e.target.value)}
-                                            placeholder="Display name"
+                                            placeholder="Nom d’affichage"
                                             className="w-full px-2.5 py-1.5 bg-white dark:bg-zinc-900 border border-black/10 dark:border-white/10 rounded-lg text-xs text-zinc-900 dark:text-zinc-100 focus:outline-none focus:ring-1 focus:ring-violet-500"
                                         />
                                     </div>
@@ -528,14 +528,14 @@ export default function HomesPage() {
                                             onClick={() => setAddingDeviceToHomeId(null)}
                                             className="px-3 py-1.5 text-[10px] font-semibold text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 transition-colors"
                                         >
-                                            Cancel
+                                            Annuler
                                         </button>
                                         <button
                                             type="submit"
                                             disabled={savingDevice}
                                             className="px-3 py-1.5 text-[10px] font-bold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-lg transition-colors disabled:opacity-60"
                                         >
-                                            {savingDevice ? 'Associating…' : 'Associate'}
+                                            {savingDevice ? 'Association…' : 'Associer'}
                                         </button>
                                     </div>
                                 </form>
@@ -586,8 +586,8 @@ export default function HomesPage() {
                                     <div className="w-12 h-12 rounded-full bg-zinc-50 dark:bg-zinc-800/50 flex items-center justify-center mb-3">
                                         <Cpu className="w-5 h-5 text-zinc-300 dark:text-zinc-600" />
                                     </div>
-                                    <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">No devices connected</p>
-                                    <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">Add a device to start monitoring.</p>
+                                    <p className="text-xs font-medium text-zinc-500 dark:text-zinc-400">Aucun appareil connecté</p>
+                                    <p className="text-[10px] text-zinc-400 dark:text-zinc-500 mt-1">Ajoutez un appareil pour commencer la surveillance.</p>
                                 </div>
                             )}
                         </div>
@@ -600,13 +600,13 @@ export default function HomesPage() {
                         <div className="w-16 h-16 rounded-2xl bg-violet-50 dark:bg-violet-500/10 flex items-center justify-center mb-4">
                             <HomeIcon className="w-8 h-8 text-violet-400" />
                         </div>
-                        <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">No Homes Found</h3>
-                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm">Register your first home to start tracking and analyzing energy consumption across different properties.</p>
+                        <h3 className="text-sm font-bold text-zinc-800 dark:text-zinc-200">Aucune résidence</h3>
+                        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm">Ajoutez votre première résidence pour commencer à suivre et analyser la consommation énergétique.</p>
                         <button
                             onClick={() => setIsAddingHome(true)}
                             className="mt-6 px-4 py-2 bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 rounded-xl text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition-colors"
                         >
-                            + Register Home
+                            + Ajouter une résidence
                         </button>
                     </div>
                 )}

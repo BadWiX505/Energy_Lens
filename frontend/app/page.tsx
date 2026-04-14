@@ -18,11 +18,11 @@ import type { MonitoringMode, EnergySummary, ComparisonData } from '@/types';
 import { AlertCircle, Loader } from 'lucide-react';
 
 const MODES: { value: MonitoringMode; label: string }[] = [
-  { value: 'live', label: 'Live' },
-  { value: 'hours', label: 'Hourly' },
-  { value: 'days', label: 'Daily' },
-  { value: 'weeks', label: 'Weekly' },
-  { value: 'months', label: 'Monthly' },
+  { value: 'live', label: 'Temps réel' },
+  { value: 'hours', label: 'Horaire' },
+  { value: 'days', label: 'Journalier' },
+  { value: 'weeks', label: 'Hebdo' },
+  { value: 'months', label: 'Mensuel' },
 ];
 
 const EMPTY_SUMMARY: EnergySummary = {
@@ -121,8 +121,8 @@ export default function DashboardPage() {
     ? Number((((summary.billingCycle.projectedCost - summary.billingCycle.previousCost) / summary.billingCycle.previousCost) * 100).toFixed(1))
     : undefined;
   const billingCycleSubtitle = summary.billingCycle.daysRemaining > 0
-    ? `${summary.billingCycle.daysRemaining} days left in cycle`
-    : 'Billing cycle closes today';
+    ? `${summary.billingCycle.daysRemaining} j. restants dans le cycle`
+    : 'Le cycle de facturation se clôture aujourd’hui';
 
   return (
     <div className="space-y-6 pb-8">
@@ -133,8 +133,8 @@ export default function DashboardPage() {
             <div className="rounded-lg border border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/20 p-3 flex items-gap-2 gap-2">
               <AlertCircle className="w-4 h-4 text-yellow-600 dark:text-yellow-500 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400">WebSocket Not Connected</p>
-                <p className="text-xs text-yellow-600 dark:text-yellow-500">Waiting for connection to backend...</p>
+                <p className="text-sm font-medium text-yellow-700 dark:text-yellow-400">Connexion non établie</p>
+                <p className="text-xs text-yellow-600 dark:text-yellow-500">Connexion à votre environnement en cours…</p>
               </div>
             </div>
           )}
@@ -142,9 +142,8 @@ export default function DashboardPage() {
             <div className="rounded-lg border border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 p-4 flex items-gap-3 gap-3">
               <Loader className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5 animate-spin" />
               <div>
-                <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Waiting for Data</p>
-                <p className="text-xs text-blue-600 dark:text-blue-500">Selected device ID: <span className="font-mono">{selectedDeviceId || 'none'}</span></p>
-                <p className="text-xs text-blue-600 dark:text-blue-500">Make sure device is publishing to MQTT broker and backend is forwarding events...</p>
+                <p className="text-sm font-medium text-blue-700 dark:text-blue-400">En attente des données…</p>
+                <p className="text-xs text-blue-600 dark:text-blue-500">Aucune mesure reçue pour le moment. Vérifiez que votre appareil est actif.</p>
               </div>
             </div>
           )}
@@ -156,8 +155,8 @@ export default function DashboardPage() {
         <div className="rounded-lg border border-blue-500/50 bg-blue-50 dark:bg-blue-950/20 p-4 flex items-gap-3 gap-3">
           <Loader className="w-5 h-5 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5 animate-spin" />
           <div>
-            <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Loading energy data...</p>
-            <p className="text-xs text-blue-600 dark:text-blue-500">Fetching {monitoringMode} aggregates from InfluxDB</p>
+            <p className="text-sm font-medium text-blue-700 dark:text-blue-400">Chargement des données…</p>
+            <p className="text-xs text-blue-600 dark:text-blue-500">Récupération des données {MODES.find(m => m.value === monitoringMode)?.label.toLowerCase()}</p>
           </div>
         </div>
       )}
@@ -166,8 +165,8 @@ export default function DashboardPage() {
       <div className="flex flex-col gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Energy Overview</h2>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400">Real-time monitoring · {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+            <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-100">Vue d’ensemble énergétique</h2>
+            <p className="text-xs text-zinc-500 dark:text-zinc-400">Surveillance en temps réel · {new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
           </div>
           <div className="flex items-center gap-3">
             <ConnectionStatus connected={connected} />
@@ -191,7 +190,7 @@ export default function DashboardPage() {
 
         {/* Device selector - shown in all modes */}
         <div className="flex items-center gap-2">
-          <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Device:</span>
+          <span className="text-xs font-medium text-zinc-600 dark:text-zinc-400">Appareil :</span>
           <DeviceSelector />
         </div>
       </div>
@@ -202,25 +201,25 @@ export default function DashboardPage() {
       {monitoringMode === 'live' ? (
         metrics ? (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-            <MetricCard title="Power" value={formatNumber(displayMetrics.power, 0)} unit="W" icon="Zap" color="violet"
+            <MetricCard title="Puissance" value={formatNumber(displayMetrics.power, 0)} unit="W" icon="Zap" color="violet"
               change={displayMetrics.power > (settings.max_power_threshold * 0.7) ? 12 : -5} />
-            <MetricCard title="Voltage" value={formatNumber(displayMetrics.voltage, 1)} unit="V" icon="Activity" color="cyan" />
-            <MetricCard title="Current" value={formatNumber(displayMetrics.current, 2)} unit="A" icon="Cpu" color="amber" />
-            <MetricCard title="Energy" value={formatNumber(displayMetrics.energy, 3)} unit="kWh" icon="BarChart2" color="emerald" />
-            <MetricCard title="Cost" value={formatNumber(displayMetrics.cost, 4)} unit={settings.currency} icon="DollarSign" color="rose"
+            <MetricCard title="Tension" value={formatNumber(displayMetrics.voltage, 1)} unit="V" icon="Activity" color="cyan" />
+            <MetricCard title="Intensité" value={formatNumber(displayMetrics.current, 2)} unit="A" icon="Cpu" color="amber" />
+            <MetricCard title="Énergie" value={formatNumber(displayMetrics.energy, 3)} unit="kWh" icon="BarChart2" color="emerald" />
+            <MetricCard title="Coût" value={formatNumber(displayMetrics.cost, 4)} unit={settings.currency} icon="DollarSign" color="rose"
               subtitle={`@${settings.price_per_kwh}/kWh`} />
           </div>
         ) : null
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-3">
-          <MetricCard title="Today Energy" value={formatNumber(summary.today.energy, 2)} unit="kWh" icon="Zap" color="violet" />
-          <MetricCard title="Today Cost" value={formatNumber(summary.today.cost, 2)} unit={settings.currency} icon="DollarSign" color="rose" />
-          <MetricCard title="Peak Power" value={formatNumber(summary.today.peak, 0)} unit="W" icon="TrendingUp" color="amber" />
-          <MetricCard title="Week Energy" value={formatNumber(summary.thisWeek.energy, 2)} unit="kWh" icon="BarChart2" color="emerald" />
-          <MetricCard title="Month Energy" value={formatNumber(summary.thisMonth.energy, 2)} unit="kWh" icon="Activity" color="cyan"
+          <MetricCard title="Énergie du jour" value={formatNumber(summary.today.energy, 2)} unit="kWh" icon="Zap" color="violet" />
+          <MetricCard title="Coût du jour" value={formatNumber(summary.today.cost, 2)} unit={settings.currency} icon="DollarSign" color="rose" />
+          <MetricCard title="Pic de puissance" value={formatNumber(summary.today.peak, 0)} unit="W" icon="TrendingUp" color="amber" />
+          <MetricCard title="Énergie semaine" value={formatNumber(summary.thisWeek.energy, 2)} unit="kWh" icon="BarChart2" color="emerald" />
+          <MetricCard title="Énergie mois" value={formatNumber(summary.thisMonth.energy, 2)} unit="kWh" icon="Activity" color="cyan"
             change={summary.trendPercent !== 0 ? summary.trendPercent : undefined}
-            subtitle={`${summary.trend === 'up' ? '↑' : summary.trend === 'down' ? '↓' : '→'} vs last month`} />
-          <MetricCard title="Predicted Bill" value={formatNumber(summary.billingCycle.projectedCost, 2)} unit={settings.currency} icon="Wallet" color="sky"
+            subtitle={`${summary.trend === 'up' ? '↑' : summary.trend === 'down' ? '↓' : '→'} vs mois précédent`} />
+          <MetricCard title="Facture estimée" value={formatNumber(summary.billingCycle.projectedCost, 2)} unit={settings.currency} icon="Wallet" color="sky"
             change={projectedBillChange}
             subtitle={billingCycleSubtitle} />
         </div>
@@ -234,9 +233,9 @@ export default function DashboardPage() {
               <TipsCard  mode={monitoringMode}/>
             </div>
             <ChartCard
-              title="Power & Energy — Live"
-              subtitle={`${liveChartData.length} data ${liveChartData.length === 1 ? 'point' : 'points'}`}
-              action={<span className="text-[10px] text-zinc-400 dark:text-zinc-500">Real-time updates</span>}
+              title="Puissance & Énergie — Temps réel"
+              subtitle={`${liveChartData.length} point${liveChartData.length === 1 ? '' : 's'} de données`}
+              action={<span className="text-[10px] text-zinc-400 dark:text-zinc-500">Mises à jour en direct</span>}
               className='col-span-1 row-span-1'
             >
               <EnergyAreaChart
@@ -245,7 +244,7 @@ export default function DashboardPage() {
                 height={220}
               />
             </ChartCard>
-            <ChartCard title="Voltage & Current — Live" subtitle="Real-time electrical parameters" className='col-span-1 row-span-1'>
+            <ChartCard title="Tension & Intensité — Temps réel" subtitle="Paramètres électriques en direct" className='col-span-1 row-span-1'>
               <EnergyAreaChart
                 data={liveChartData}
                 dataKeys={[
@@ -267,8 +266,8 @@ export default function DashboardPage() {
             </div>
             <div className="lg:col-span-2">
               <ChartCard
-                title={`Energy Consumption — ${MODES.find(m => m.value === monitoringMode)?.label}`}
-                subtitle={`${groupedHistory.length} periods`}
+              title={`Consommation énergétique — ${MODES.find(m => m.value === monitoringMode)?.label}`}
+              subtitle={`${groupedHistory.length} période${groupedHistory.length !== 1 ? 's' : ''}`}
                 className="h-full"
               >
                 <EnergyAreaChart
@@ -285,7 +284,7 @@ export default function DashboardPage() {
 
           {/* Comparison + Cost */}
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <ChartCard title="Today vs Yesterday" subtitle="Hourly energy comparison (kWh)">
+            <ChartCard title="Aujourd’hui vs Hier" subtitle="Comparaison horaire de consommation (kWh)">
               <EnergyBarChart
                 data={compData}
                 dataKeys={[
@@ -296,8 +295,8 @@ export default function DashboardPage() {
               />
             </ChartCard>
             <ChartCard
-              title={`Cost Changes — ${MODES.find((mode) => mode.value === monitoringMode)?.label}`}
-              subtitle={`${groupedHistory.length} periods · ${settings.currency}`}
+              title={`Évolution des coûts — ${MODES.find((mode) => mode.value === monitoringMode)?.label}`}
+              subtitle={`${groupedHistory.length} période${groupedHistory.length !== 1 ? 's' : ''} · ${settings.currency}`}
             >
               <EnergyAreaChart
                 data={groupedHistory}
@@ -310,14 +309,14 @@ export default function DashboardPage() {
           </div>
 
           <ChartCard
-            title="Predicted Bill"
-            subtitle={`Current billing cycle · started ${new Date(summary.billingCycle.startDate).toLocaleDateString()}`}
+            title="Facture estimée"
+            subtitle={`Cycle de facturation en cours · débuté le ${new Date(summary.billingCycle.startDate).toLocaleDateString('fr-FR')}`}
           >
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-              <MetricCard title="Projected Cost" value={formatNumber(summary.billingCycle.projectedCost, 2)} unit={settings.currency} icon="Wallet" color="sky" change={projectedBillChange} subtitle={billingCycleSubtitle} />
-              <MetricCard title="Cycle Cost So Far" value={formatNumber(summary.billingCycle.cost, 2)} unit={settings.currency} icon="DollarSign" color="rose" subtitle={`${formatNumber(summary.billingCycle.daysElapsed, 1)} days elapsed`} />
-              <MetricCard title="Projected Energy" value={formatNumber(summary.billingCycle.projectedEnergy, 2)} unit="kWh" icon="BarChart2" color="emerald" subtitle={`${formatNumber(summary.billingCycle.avgDailyEnergy, 2)} kWh/day`} />
-              <MetricCard title="Previous Cycle" value={formatNumber(summary.billingCycle.previousCost, 2)} unit={settings.currency} icon="History" color="amber" subtitle={summary.billingCycle.totalDays > 0 ? `${formatNumber(summary.billingCycle.totalDays, 0)}-day cycle` : undefined} />
+              <MetricCard title="Coût prévisionnel" value={formatNumber(summary.billingCycle.projectedCost, 2)} unit={settings.currency} icon="Wallet" color="sky" change={projectedBillChange} subtitle={billingCycleSubtitle} />
+              <MetricCard title="Coût actuel" value={formatNumber(summary.billingCycle.cost, 2)} unit={settings.currency} icon="DollarSign" color="rose" subtitle={`${formatNumber(summary.billingCycle.daysElapsed, 1)} j. écoulés`} />
+              <MetricCard title="Énergie prévisionnelle" value={formatNumber(summary.billingCycle.projectedEnergy, 2)} unit="kWh" icon="BarChart2" color="emerald" subtitle={`${formatNumber(summary.billingCycle.avgDailyEnergy, 2)} kWh/jour`} />
+              <MetricCard title="Cycle précédent" value={formatNumber(summary.billingCycle.previousCost, 2)} unit={settings.currency} icon="History" color="amber" subtitle={summary.billingCycle.totalDays > 0 ? `Cycle de ${formatNumber(summary.billingCycle.totalDays, 0)} j.` : undefined} />
             </div>
           </ChartCard>
         </>
@@ -327,10 +326,10 @@ export default function DashboardPage() {
       {monitoringMode !== 'live' && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {[
-            { label: 'Today\'s Usage', value: `${formatNumber(summary.today.energy, 2)} kWh`, color: 'text-violet-400' },
-            { label: 'Avg Daily Cost', value: `${formatNumber(summary.billingCycle.avgDailyCost, 2)} ${settings.currency}`, color: 'text-rose-400' },
-            { label: 'Billing Days Left', value: `${summary.billingCycle.daysRemaining} days`, color: 'text-sky-400' },
-            { label: 'Previous Cycle Energy', value: `${formatNumber(summary.billingCycle.previousEnergy, 2)} kWh`, color: 'text-emerald-400' },
+            { label: 'Consommation du jour', value: `${formatNumber(summary.today.energy, 2)} kWh`, color: 'text-violet-400' },
+            { label: 'Coût quotidien moyen', value: `${formatNumber(summary.billingCycle.avgDailyCost, 2)} ${settings.currency}`, color: 'text-rose-400' },
+            { label: 'Jours restants', value: `${summary.billingCycle.daysRemaining} j.`, color: 'text-sky-400' },
+            { label: 'Énergie cycle préc.', value: `${formatNumber(summary.billingCycle.previousEnergy, 2)} kWh`, color: 'text-emerald-400' },
           ].map((stat, i) => (
             <div key={i} className="rounded-2xl border border-black/5 dark:border-white/5 bg-white dark:bg-zinc-900/80 p-5 flex flex-col justify-between">
               <p className="text-[11px] uppercase tracking-wider text-zinc-400 dark:text-zinc-500">{stat.label}</p>
